@@ -35,7 +35,7 @@ pytest
 pytest -v
 
 # With coverage report
-pytest --cov=geosuite_lib --cov=app --cov-report=html
+pytest --cov=geosuite --cov=webapp --cov-report=html
 ```
 
 ### Run Specific Test Files
