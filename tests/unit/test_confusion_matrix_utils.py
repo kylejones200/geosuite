@@ -8,8 +8,7 @@ from geosuite.ml.confusion_matrix_utils import (
     display_cm,
     display_adj_cm,
     confusion_matrix_to_dataframe,
-    compute_metrics_from_cm,
-    plot_confusion_matrix_plotly
+    compute_metrics_from_cm
 )
 
 
