@@ -2,6 +2,14 @@
 docs/build/
 docs/_build/
 
+# Internal documentation (not for distribution)
+docs/README.md
+docs/blogs/
+docs/plot_migration_map.md
+docs/numba_optimization_plan.md
+docs/sedona.md
+docs/REPO_MAP.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
