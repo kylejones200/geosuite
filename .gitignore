@@ -1,5 +1,6 @@
-# Documentation
-docs/
+# Documentation builds (keep source files)
+docs/build/
+docs/_build/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
