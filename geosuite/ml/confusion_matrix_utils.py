@@ -60,17 +60,48 @@ def display_cm(cm: np.ndarray,
     Returns:
         Formatted string representation of confusion matrix
     """
-    precision = np.diagonal(cm) / cm.sum(axis=0).astype('float')
-    recall = np.diagonal(cm) / cm.sum(axis=1).astype('float')
-    F1 = 2 * (precision * recall) / (precision + recall)
+    # For non-square matrices, we need to handle metrics carefully
+    n_rows, n_cols = cm.shape
+    is_square = n_rows == n_cols
+    
+    if is_square:
+        precision = np.diagonal(cm) / cm.sum(axis=0).astype('float')
+        recall = np.diagonal(cm) / cm.sum(axis=1).astype('float')
+        F1 = 2 * (precision * recall) / (precision + recall)
+    else:
+        # For non-square matrices, compute what we can
+        diag_len = min(n_rows, n_cols)
+        diag = np.array([cm[i, i] for i in range(diag_len)])
+        
+        col_sums = cm.sum(axis=0).astype('float')
+        row_sums = cm.sum(axis=1).astype('float')
+        
+        precision = np.zeros(n_cols)
+        precision[:diag_len] = diag / col_sums[:diag_len]
+        
+        recall = np.zeros(n_rows)
+        recall[:diag_len] = diag / row_sums[:diag_len]
+        
+        F1 = np.zeros(max(n_rows, n_cols))
+        F1[:diag_len] = 2 * (precision[:diag_len] * recall[:diag_len]) / (precision[:diag_len] + recall[:diag_len])
     
     precision[np.isnan(precision)] = 0
     recall[np.isnan(recall)] = 0
     F1[np.isnan(F1)] = 0
     
-    total_precision = np.sum(precision * cm.sum(axis=1)) / cm.sum(axis=(0, 1))
-    total_recall = np.sum(recall * cm.sum(axis=1)) / cm.sum(axis=(0, 1))
-    total_F1 = np.sum(F1 * cm.sum(axis=1)) / cm.sum(axis=(0, 1))
+    # Calculate totals based on matrix shape
+    row_sums_all = cm.sum(axis=1)
+    total_samples = cm.sum()
+    
+    if is_square:
+        total_precision = np.sum(precision * row_sums_all) / total_samples
+        total_recall = np.sum(recall * row_sums_all) / total_samples
+        total_F1 = np.sum(F1 * row_sums_all) / total_samples
+    else:
+        # For non-square, use what we have
+        total_precision = np.sum(precision[:len(row_sums_all)] * row_sums_all) / total_samples if len(precision) >= len(row_sums_all) else 0
+        total_recall = np.sum(recall * row_sums_all) / total_samples if len(recall) == len(row_sums_all) else 0
+        total_F1 = np.sum(F1[:len(row_sums_all)] * row_sums_all) / total_samples if len(F1) >= len(row_sums_all) else 0
     
     columnwidth = max([len(x) for x in labels] + [5])  # 5 is value length
     empty_cell = " " * columnwidth
@@ -80,7 +111,8 @@ def display_cm(cm: np.ndarray,
     
     # Print header
     header = "    " + " Pred"
-    for label in labels:
+    for j in range(n_cols):
+        label = labels[j] if j < len(labels) else f"Col{j}"
         header += " " + f"{label:>{columnwidth}}"
     header += " " + f"{'Total':>{columnwidth}}"
     output.append(header)
@@ -88,13 +120,15 @@ def display_cm(cm: np.ndarray,
     output.append("    " + " True")
     
     # Print rows
-    for i, label1 in enumerate(labels):
+    for i in range(n_rows):
+        label1 = labels[i] if i < len(labels) else f"Row{i}"
         row = "    " + f"{label1:>{columnwidth}}"
-        for j in range(len(labels)):
-            cell = f"{int(cm[i, j]):>{columnwidth}d}"
-            if hide_zeros:
-                cell = cell if float(cm[i, j]) != 0 else empty_cell
-            row += " " + cell
+        for j in range(n_cols):
+            if j < len(labels):
+                cell = f"{int(cm[i, j]):>{columnwidth}d}"
+                if hide_zeros:
+                    cell = cell if float(cm[i, j]) != 0 else empty_cell
+                row += " " + cell
         row += " " + f"{int(sum(cm[i,:])):>{columnwidth}d}"
         output.append(row)
         output.append("")
@@ -102,22 +136,25 @@ def display_cm(cm: np.ndarray,
     if display_metrics:
         output.append("")
         precision_row = "Precision"
-        for j in range(len(labels)):
-            precision_row += " " + f"{precision[j]:>{columnwidth}.2f}"
+        for j in range(n_cols):
+            val = precision[j] if j < len(precision) else 0.0
+            precision_row += " " + f"{val:>{columnwidth}.2f}"
         precision_row += " " + f"{total_precision:>{columnwidth}.2f}"
         output.append(precision_row)
         output.append("")
         
         recall_row = "   Recall"
-        for j in range(len(labels)):
-            recall_row += " " + f"{recall[j]:>{columnwidth}.2f}"
+        for j in range(n_cols):
+            val = recall[j] if j < len(recall) else 0.0
+            recall_row += " " + f"{val:>{columnwidth}.2f}"
         recall_row += " " + f"{total_recall:>{columnwidth}.2f}"
         output.append(recall_row)
         output.append("")
         
         f1_row = "       F1"
-        for j in range(len(labels)):
-            f1_row += " " + f"{F1[j]:>{columnwidth}.2f}"
+        for j in range(n_cols):
+            val = F1[j] if j < len(F1) else 0.0
+            f1_row += " " + f"{val:>{columnwidth}.2f}"
         f1_row += " " + f"{total_F1:>{columnwidth}.2f}"
         output.append(f1_row)
         output.append("")
@@ -299,6 +336,63 @@ def plot_confusion_matrix(cm: np.ndarray,
     ax.set_title(title, fontsize=12, pad=10)
     
     plt.tight_layout()
+    return fig
+
+
+def plot_confusion_matrix_plotly(cm: np.ndarray,
+                                  labels: List[str],
+                                  title: str = "Confusion Matrix",
+                                  normalize: bool = True):
+    """
+    Create a Plotly interactive heatmap of the confusion matrix.
+    
+    Args:
+        cm: Confusion matrix (numpy array)
+        labels: List of class labels
+        title: Title for the plot
+        normalize: If True, show normalized values; if False, show counts
+        
+    Returns:
+        Plotly figure object
+    """
+    try:
+        import plotly.graph_objects as go
+    except ImportError:
+        raise ImportError("plotly is required for plot_confusion_matrix_plotly. "
+                         "Install with: pip install plotly")
+    
+    # Normalize confusion matrix for display
+    if normalize:
+        cm_display = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        cm_display = np.nan_to_num(cm_display)
+        text_template = '%{z:.1%}'
+        colorbar_title = 'Normalized'
+    else:
+        cm_display = cm
+        text_template = '%{z:d}'
+        colorbar_title = 'Count'
+    
+    # Create heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=cm_display,
+        x=labels,
+        y=labels,
+        colorscale='Blues',
+        text=cm_display,
+        texttemplate=text_template,
+        textfont={"size": 10},
+        colorbar=dict(title=colorbar_title)
+    ))
+    
+    # Update layout
+    fig.update_layout(
+        title=title,
+        xaxis=dict(title="Predicted Label", side="bottom"),
+        yaxis=dict(title="True Label", autorange="reversed"),
+        width=600,
+        height=600
+    )
+    
     return fig
 
 

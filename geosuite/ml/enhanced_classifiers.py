@@ -12,18 +12,23 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler
-import mlflow
-import mlflow.sklearn
-from mlflow.models import infer_signature
 import tempfile
 import os
 import sys
 from typing import Dict, Tuple, List, Any, Optional
 
 logger = logging.getLogger(__name__)
-import logging
 
-logger = logging.getLogger(__name__)
+# Make MLflow imports optional
+try:
+    import mlflow
+    import mlflow.sklearn
+    from mlflow.models import infer_signature
+    MLFLOW_AVAILABLE = True
+except ImportError:
+    logger.warning("MLflow not available. Install with: pip install mlflow")
+    mlflow = None
+    MLFLOW_AVAILABLE = False
 
 # Add the MLflow service to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'app', 'services'))
