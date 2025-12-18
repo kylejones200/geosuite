@@ -1,0 +1,35 @@
+# Include documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Include requirements
+include requirements.txt
+include pyproject.toml
+include setup.py
+
+# Include data files
+recursive-include geosuite/data/files *.parquet
+recursive-include geosuite/data/files/KSdata *.parquet
+
+# Include tests
+recursive-include tests *.py
+
+# Exclude compiled files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.so
+global-exclude *.dylib
+
+# Exclude webapp (separate install)
+prune webapp
+prune archive
+prune docs
+prune examples
+prune geosuite_old
+prune mlruns
+prune mlartifacts
+
+

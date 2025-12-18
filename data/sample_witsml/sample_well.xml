@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<witsml:Well xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" uuid="well_20250924_091816" schemaVersion="2.0">
+  <eml:Citation>
+    <eml:Title>GeoSuite_Demo_Well</eml:Title>
+    <eml:Description>Sample well for GeoSuite WITSML integration demo</eml:Description>
+    <eml:Creation>2025-09-24T09:18:16.659773</eml:Creation>
+  </eml:Citation>
+  <witsml:Field>GeoSuite_Demo_Field</witsml:Field>
+  <witsml:Country>United States</witsml:Country>
+  <witsml:State>Texas</witsml:State>
+  <witsml:County>Harris</witsml:County>
+  <witsml:Operator>GeoSuite_Operator</witsml:Operator>
+  <witsml:StatusWell>drilling</witsml:StatusWell>
+  <witsml:PurposeWell>exploration</witsml:PurposeWell>
+  <witsml:WellLocation>
+    <witsml:SurfaceLocation>
+      <witsml:Latitude uom="dega">29.7604</witsml:Latitude>
+      <witsml:Longitude uom="dega">-95.3698</witsml:Longitude>
+      <witsml:ProjectedX uom="m">1000000</witsml:ProjectedX>
+      <witsml:ProjectedY uom="m">2000000</witsml:ProjectedY>
+    </witsml:SurfaceLocation>
+  </witsml:WellLocation>
+</witsml:Well>

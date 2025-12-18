@@ -1,0 +1,21 @@
+# GeoSuite Web Application Dependencies
+# Install with: pip install -r requirements-webapp.txt
+
+# Note: This assumes you already have geosuite installed
+# pip install geosuite
+
+# Flask web framework
+Flask>=3.0.0
+python-dotenv>=1.0.0
+gunicorn>=21.0.0
+
+# Dash for interactive dashboards
+dash>=2.16
+dash-bootstrap-components>=1.4
+dash-echarts>=0.0.7
+
+# Optional: MLflow for ML experiment UI
+mlflow>=2.8.0
+mlflow[extras]>=2.8.0
+
+

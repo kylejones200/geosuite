@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='utf-8'?>
+<witsml:Log xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" uuid="log_20250924_091816" schemaVersion="2.0">
+  <eml:Citation>
+    <eml:Title>GeoSuite_Demo_Log</eml:Title>
+    <eml:Creation>2025-09-24T09:18:16.659780</eml:Creation>
+  </eml:Citation>
+  <witsml:Wellbore>wellbore_001</witsml:Wellbore>
+  <witsml:ServiceCompany>GeoSuite_Logging</witsml:ServiceCompany>
+  <witsml:RunNumber>1</witsml:RunNumber>
+  <witsml:StartIndex uom="m">1000</witsml:StartIndex>
+  <witsml:EndIndex uom="m">1100</witsml:EndIndex>
+  <witsml:Direction>increasing</witsml:Direction>
+  <witsml:Channel uuid="channel_DEPT_20250924_091816">
+    <eml:Citation>
+      <eml:Title>DEPT</eml:Title>
+      <eml:Description>measured depth</eml:Description>
+    </eml:Citation>
+    <witsml:Mnemonic>DEPT</witsml:Mnemonic>
+    <witsml:DataType>double</witsml:DataType>
+    <witsml:Uom>m</witsml:Uom>
+  </witsml:Channel>
+  <witsml:Channel uuid="channel_GR_20250924_091816">
+    <eml:Citation>
+      <eml:Title>GR</eml:Title>
+      <eml:Description>gamma ray</eml:Description>
+    </eml:Citation>
+    <witsml:Mnemonic>GR</witsml:Mnemonic>
+    <witsml:DataType>double</witsml:DataType>
+    <witsml:Uom>gAPI</witsml:Uom>
+  </witsml:Channel>
+  <witsml:Channel uuid="channel_RHOB_20250924_091816">
+    <eml:Citation>
+      <eml:Title>RHOB</eml:Title>
+      <eml:Description>bulk density</eml:Description>
+    </eml:Citation>
+    <witsml:Mnemonic>RHOB</witsml:Mnemonic>
+    <witsml:DataType>double</witsml:DataType>
+    <witsml:Uom>g/cm3</witsml:Uom>
+  </witsml:Channel>
+  <witsml:Channel uuid="channel_NPHI_20250924_091816">
+    <eml:Citation>
+      <eml:Title>NPHI</eml:Title>
+      <eml:Description>neutron porosity</eml:Description>
+    </eml:Citation>
+    <witsml:Mnemonic>NPHI</witsml:Mnemonic>
+    <witsml:DataType>double</witsml:DataType>
+    <witsml:Uom>v/v</witsml:Uom>
+  </witsml:Channel>
+  <witsml:Channel uuid="channel_RT_20250924_091816">
+    <eml:Citation>
+      <eml:Title>RT</eml:Title>
+      <eml:Description>deep resistivity</eml:Description>
+    </eml:Citation>
+    <witsml:Mnemonic>RT</witsml:Mnemonic>
+    <witsml:DataType>double</witsml:DataType>
+    <witsml:Uom>ohm.m</witsml:Uom>
+  </witsml:Channel>
+  <witsml:Channel uuid="channel_PE_20250924_091816">
+    <eml:Citation>
+      <eml:Title>PE</eml:Title>
+      <eml:Description>photoelectric factor</eml:Description>
+    </eml:Citation>
+    <witsml:Mnemonic>PE</witsml:Mnemonic>
+    <witsml:DataType>double</witsml:DataType>
+    <witsml:Uom>b/e</witsml:Uom>
+  </witsml:Channel>
+  <witsml:LogData>
+    <witsml:Data>1000.0,82.62,2.779,0.288,11.51,5.29</witsml:Data>
+    <witsml:Data>1002.0,42.56,2.654,0.098,17.25,4.97</witsml:Data>
+    <witsml:Data>1004.0,61.15,2.310,0.167,1.62,4.31</witsml:Data>
+    <witsml:Data>1006.0,31.52,2.624,0.229,4.52,3.41</witsml:Data>
+    <witsml:Data>1008.0,115.48,2.784,0.108,4.57,3.77</witsml:Data>
+    <witsml:Data>1010.0,144.33,2.732,0.258,10.44,3.78</witsml:Data>
+    <witsml:Data>1012.0,47.47,2.422,0.152,9.76,2.70</witsml:Data>
+    <witsml:Data>1014.0,93.29,2.377,0.251,17.64,4.79</witsml:Data>
+    <witsml:Data>1016.0,104.72,2.260,0.331,24.91,2.48</witsml:Data>
+    <witsml:Data>1018.0,78.84,2.771,0.123,3.71,2.47</witsml:Data>
+    <witsml:Data>1020.0,99.91,2.261,0.308,4.39,2.04</witsml:Data>
+    <witsml:Data>1022.0,146.63,2.594,0.219,3.68,2.64</witsml:Data>
+    <witsml:Data>1024.0,24.34,2.274,0.091,10.70,3.22</witsml:Data>
+    <witsml:Data>1026.0,48.54,2.702,0.279,4.69,2.75</witsml:Data>
+    <witsml:Data>1028.0,63.51,2.741,0.066,26.66,3.45</witsml:Data>
+    <witsml:Data>1030.0,134.98,2.647,0.179,1.94,2.45</witsml:Data>
+    <witsml:Data>1032.0,63.83,2.376,0.314,16.84,4.29</witsml:Data>
+    <witsml:Data>1034.0,94.76,2.449,0.226,6.38,3.12</witsml:Data>
+    <witsml:Data>1036.0,38.30,2.365,0.302,13.10,3.54</witsml:Data>
+    <witsml:Data>1038.0,65.67,2.491,0.273,5.35,4.28</witsml:Data>
+    <witsml:Data>1040.0,43.50,2.492,0.308,4.85,3.95</witsml:Data>
+    <witsml:Data>1042.0,140.85,2.202,0.342,50.80,1.81</witsml:Data>
+    <witsml:Data>1044.0,99.77,2.600,0.211,3.58,4.76</witsml:Data>
+    <witsml:Data>1046.0,129.39,2.792,0.067,3.54,3.37</witsml:Data>
+    <witsml:Data>1048.0,94.50,2.315,0.262,3.27,4.05</witsml:Data>
+    <witsml:Data>1050.0,75.46,2.519,0.116,3.28,3.78</witsml:Data>
+    <witsml:Data>1052.0,76.45,2.374,0.246,13.47,1.93</witsml:Data>
+    <witsml:Data>1054.0,138.34,2.345,0.294,3.81,3.05</witsml:Data>
+    <witsml:Data>1056.0,67.78,2.404,0.330,4.61,2.47</witsml:Data>
+    <witsml:Data>1058.0,53.90,2.323,0.232,2.27,3.23</witsml:Data>
+    <witsml:Data>1060.0,105.07,2.439,0.308,10.55,2.70</witsml:Data>
+    <witsml:Data>1062.0,26.28,2.677,0.245,6.38,3.45</witsml:Data>
+    <witsml:Data>1064.0,78.71,2.700,0.177,21.37,5.41</witsml:Data>
+    <witsml:Data>1066.0,71.26,2.580,0.349,5.97,3.87</witsml:Data>
+    <witsml:Data>1068.0,44.73,2.200,0.161,6.33,3.47</witsml:Data>
+    <witsml:Data>1070.0,113.47,2.515,0.079,1.78,4.52</witsml:Data>
+    <witsml:Data>1072.0,99.07,2.543,0.170,3.23,5.38</witsml:Data>
+    <witsml:Data>1074.0,128.88,2.498,0.275,8.64,3.24</witsml:Data>
+    <witsml:Data>1076.0,48.81,2.784,0.105,10.00,2.37</witsml:Data>
+    <witsml:Data>1078.0,149.20,2.628,0.115,2.32,5.24</witsml:Data>
+    <witsml:Data>1080.0,111.89,2.667,0.189,14.11,4.87</witsml:Data>
+    <witsml:Data>1082.0,148.82,2.595,0.321,4.44,2.90</witsml:Data>
+    <witsml:Data>1084.0,34.07,2.777,0.318,7.28,4.72</witsml:Data>
+    <witsml:Data>1086.0,140.11,2.671,0.247,2.85,3.58</witsml:Data>
+    <witsml:Data>1088.0,81.26,2.568,0.079,4.49,4.13</witsml:Data>
+    <witsml:Data>1090.0,52.79,2.632,0.099,8.73,2.83</witsml:Data>
+    <witsml:Data>1092.0,57.57,2.237,0.301,3.25,4.23</witsml:Data>
+    <witsml:Data>1094.0,67.55,2.606,0.122,15.67,2.02</witsml:Data>
+    <witsml:Data>1096.0,113.30,2.548,0.206,4.46,4.52</witsml:Data>
+    <witsml:Data>1098.0,52.35,2.753,0.059,23.09,5.42</witsml:Data>
+  </witsml:LogData>
+</witsml:Log>

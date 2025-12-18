@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}GeoSuite - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <h1 class="display-4">
+                <i class="bi bi-globe-americas me-3"></i>GeoSuite
+            </h1>
+            <p class="lead">Unified geomechanics and subsurface geology workflows</p>
+            <p>Professional tools for reservoir analysis, geomechanical modeling, and data management.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-hammer text-danger me-2"></i>Geomechanics
+                </h5>
+                <p class="card-text">Stress calculations, wellbore stability analysis, and geomechanical modeling tools.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Vertical stress (Sv) calculations</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Pore pressure (Pp) estimation</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Wellbore stability analysis</li>
+                    <li><i class="bi bi-clock text-warning me-2"></i>SHmax bounds estimation</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('geomech.geomech_home') }}" class="btn btn-danger">
+                    <i class="bi bi-arrow-right me-2"></i>Explore Geomechanics
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-droplet text-primary me-2"></i>Petrophysics
+                </h5>
+                <p class="card-text">Reservoir characterization tools including log analysis and petrophysical plots.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Archie's equation calculator</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Pickett plots</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Buckles plots</li>
+                    <li><i class="bi bi-clock text-warning me-2"></i>Facies classification</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('petro.petro_home') }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-right me-2"></i>Explore Petrophysics
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-database text-success me-2"></i>Data Management
+                </h5>
+                <p class="card-text">Import, process, and manage geological and petrophysical datasets.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>LAS file import</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>CSV data processing</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>PPDM data management</li>
+                    <li><i class="bi bi-clock text-warning me-2"></i>SEG-Y processing</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('data.data_home') }}" class="btn btn-success">
+                    <i class="bi bi-arrow-right me-2"></i>Manage Data
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-robot text-info me-2"></i>ML Models
+                </h5>
+                <p class="card-text">Machine learning workflows with MLflow for experiment tracking and model deployment.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Facies classification</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Experiment tracking</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Model registry</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Model deployment</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('ml.ml_home') }}" class="btn btn-info">
+                    <i class="bi bi-arrow-right me-2"></i>ML Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="bi bi-map text-warning me-2"></i>North Dakota Wells
+                </h5>
+                <p class="card-text">Interactive map and decline curve analysis for North Dakota Bakken and Three Forks wells.</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Interactive well map</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Decline curve analysis</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Operator performance</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Production forecasting</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('wells.wells_home') }}" class="btn btn-warning">
+                    <i class="bi bi-arrow-right me-2"></i>Explore Wells
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h6><i class="bi bi-info-circle me-2"></i>Getting Started</h6>
+            <p class="mb-2">Welcome to the Flask version of GeoSuite! Here's how to get started:</p>
+            <ol class="mb-0">
+                <li><strong>Import Data:</strong> Use the Data Management section to import LAS files or CSV datasets</li>
+                <li><strong>Analyze:</strong> Apply geomechanical calculations or petrophysical analysis tools</li>
+                <li><strong>Visualize:</strong> Generate plots and charts for your reservoir analysis</li>
+                <li><strong>Export:</strong> Download results for further analysis or reporting</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="bi bi-speedometer2 me-2"></i>System Status</h6>
+            </div>
+            <div class="card-body">
+                <div id="system-status">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="bi bi-lightbulb me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="btn-group-vertical d-grid gap-2">
+                    <a href="{{ url_for('data.data_import') }}" class="btn btn-outline-success">
+                        <i class="bi bi-upload me-2"></i>Import Demo Data
+                    </a>
+                    <a href="{{ url_for('geomech.stress_calculator') }}" class="btn btn-outline-danger">
+                        <i class="bi bi-calculator me-2"></i>Calculate Stress
+                    </a>
+                    <a href="{{ url_for('petro.archie_calculator') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-droplet me-2"></i>Run Archie Calculation
+                    </a>
+                    <a href="{{ url_for('ml.ml_home') }}" class="btn btn-outline-info">
+                        <i class="bi bi-robot me-2"></i>ML Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load system status
+fetch('/health')
+    .then(response => response.json())
+    .then(data => {
+        const statusDiv = document.getElementById('system-status');
+        statusDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted">Status:</span>
+                <span class="badge bg-success">${data.status}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="text-muted">Mode:</span>
+                <span class="badge bg-info">${data.offline_mode ? 'Offline' : 'Online'}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="text-muted">Data Directory:</span>
+                <small class="text-muted">${data.data_directory}</small>
+            </div>
+        `;
+    })
+    .catch(error => {
+        document.getElementById('system-status').innerHTML = `
+            <div class="alert alert-warning mb-0">
+                <i class="bi bi-exclamation-triangle me-2"></i>Unable to load system status
+            </div>
+        `;
+    });
+</script>
+{% endblock %}

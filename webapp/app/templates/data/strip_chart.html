@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Strip Chart - GeoSuite{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2>Well Log Strip Chart</h2>
+            <p class="lead">Interactive visualization of well log data in traditional strip chart format</p>
+        </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Chart Options</h5>
+                    
+                    <form id="strip-chart-form">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="data-source">Data Source</label>
+                                    <select class="form-control" id="data-source" name="source">
+                                        <option value="demo" selected>Demo Well Logs</option>
+                                        <option value="facies">Facies Training Data</option>
+                                        <option value="kansas">Kansas Dataset</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="log-selection">Logs to Display</label>
+                                    <select multiple class="form-control" id="log-selection" name="logs" size="5">
+                                        <option value="GR" selected>Gamma Ray (GR)</option>
+                                        <option value="RHOB" selected>Bulk Density (RHOB)</option>
+                                        <option value="NPHI" selected>Neutron Porosity (NPHI)</option>
+                                        <option value="RT">Resistivity (RT)</option>
+                                        <option value="PE">Photo Electric (PE)</option>
+                                        <option value="DT">Sonic (DT)</option>
+                                    </select>
+                                    <small class="form-text text-muted">Hold Ctrl/Cmd to select multiple</small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="depth-min">Min Depth</label>
+                                    <input type="number" class="form-control" id="depth-min" placeholder="Auto">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="depth-max">Max Depth</label>
+                                    <input type="number" class="form-control" id="depth-max" placeholder="Auto">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-chart-line"></i> Generate Chart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div class="row mb-3" id="loading-indicator" style="display:none;">
+        <div class="col-12 text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p class="mt-2">Generating strip chart...</p>
+        </div>
+    </div>
+    
+    <!-- Error Alert -->
+    <div class="row mb-3" id="error-alert" style="display:none;">
+        <div class="col-12">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error!</strong> <span id="error-message"></span>
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Strip Chart Display -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div id="strip-chart-container" style="min-height: 800px;">
+                        <div class="text-center text-muted mt-5">
+                            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+                            <p>Select options above and click "Generate Chart" to create a strip chart</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info Panel -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">About Strip Charts</h5>
+                    <p>Strip charts (also called log plots or well log displays) are the traditional method for visualizing 
+                       well log data in the oil and gas industry. Each vertical track represents a different measurement:</p>
+                    
+                    <ul>
+                        <li><strong>GR (Gamma Ray)</strong>: Natural radioactivity of formations</li>
+                        <li><strong>RHOB (Bulk Density)</strong>: Formation bulk density</li>
+                        <li><strong>NPHI (Neutron Porosity)</strong>: Hydrogen index/porosity</li>
+                        <li><strong>RT (Resistivity)</strong>: Formation electrical resistivity</li>
+                        <li><strong>PE (Photoelectric)</strong>: Lithology indicator</li>
+                        <li><strong>DT (Sonic)</strong>: Acoustic travel time</li>
+                    </ul>
+                    
+                    <p class="mb-0"><strong>Tips:</strong> Use your mouse to zoom and pan. Hover over traces to see values. 
+                       The depth axis increases downward, following industry convention.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Plotly -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('strip-chart-form');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const errorAlert = document.getElementById('error-alert');
+    const chartContainer = document.getElementById('strip-chart-container');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Show loading, hide errors
+        loadingIndicator.style.display = 'block';
+        errorAlert.style.display = 'none';
+        
+        // Get form data
+        const source = document.getElementById('data-source').value;
+        const logSelection = document.getElementById('log-selection');
+        const selectedLogs = Array.from(logSelection.selectedOptions).map(opt => opt.value);
+        const depthMin = document.getElementById('depth-min').value;
+        const depthMax = document.getElementById('depth-max').value;
+        
+        // Build query parameters
+        const params = new URLSearchParams({
+            source: source === 'demo' ? 'demo' : 'facies',
+            logs: selectedLogs.join(',')
+        });
+        
+        if (depthMin) params.append('depth_min', depthMin);
+        if (depthMax) params.append('depth_max', depthMax);
+        
+        try {
+            // Determine API endpoint
+            const endpoint = source === 'demo' ? 
+                '/data/api/strip-chart-data' : 
+                '/data/api/facies-strip-chart';
+            
+            const response = await fetch(`${endpoint}?${params}`);
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                // Parse and display the Plotly figure
+                const figure = JSON.parse(data.figure);
+                Plotly.newPlot('strip-chart-container', figure.data, figure.layout, {
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false
+                });
+            } else {
+                throw new Error(data.message || 'Unknown error');
+            }
+        } catch (error) {
+            console.error('Error generating strip chart:', error);
+            document.getElementById('error-message').textContent = error.message;
+            errorAlert.style.display = 'block';
+        } finally {
+            loadingIndicator.style.display = 'none';
+        }
+    });
+});
+</script>
+
+{% endblock %}
+

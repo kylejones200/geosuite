@@ -1,0 +1,43 @@
+
+PPDM Demo Data Summary
+Generated: 2025-09-24 09:27:46
+
+Files Created:
+- ppdm_wells_demo.csv: 50 wells across 3 fields
+- ppdm_business_associates_demo.csv: 3 business associates (operators)
+- ppdm_production_demo.csv: 1800 production records for 10 wells
+
+Field Distribution:
+ASSIGNED_FIELD
+DEMO_FIELD_A    19
+BAKKEN_FIELD    19
+DEMO_FIELD_B    12
+
+Operator Distribution:
+OPERATOR
+BA000305_DEMO_OP_C    22
+BA000127_DEMO_OP_A    15
+BA000201_DEMO_OP_B    13
+
+Well Status:
+CURRENT_STATUS
+ACTIVE      36
+INACTIVE     9
+DRILLING     5
+
+Geographic Coverage:
+Latitude range: 47.6368 to 48.0770
+Longitude range: -103.8725 to -103.2211
+
+Production Summary:
+Date range: 2020-01-01 to 2024-12-01
+Total oil production: 2,429,280 bbls
+Total gas production: 5,007,194 MCF
+Total water production: 1,905,568 bbls
+
+Usage Instructions:
+1. Navigate to PPDM Data page in GeoSuite
+2. Select "Local PPDM Files" import option
+3. Set directory path to: /Users/k.jones/Desktop/geos/geosuite/sample_ppdm
+4. Load each data type individually
+5. Export to GeoSuite format for field analysis

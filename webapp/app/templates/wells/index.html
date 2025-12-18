@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ND Wells — Map + DCA + Genie</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet"/>
+<link href="https://unpkg.com/@mapbox/mapbox-gl-draw@1.5.0/dist/mapbox-gl-draw.css" rel="stylesheet"/>
+<link href="{{ url_for('static', filename='css/wells.css') }}" rel="stylesheet"/>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>North Dakota Wells</h1>
+    <div class="pill">Map • DCA • Genie</div>
+    <nav style="margin-left: auto;">
+      <a href="{{ url_for('main.index') }}" style="margin-right: 15px;">← Back to GeoSuite</a>
+    </nav>
+  </header>
+  <div id="map"></div>
+  <div class="resizer" id="resizer"></div>
+  <aside id="side">
+    <div id="detail">
+      <h2 id="wellTitle">Select a well on the map</h2>
+      <div class="meta" id="wellMeta">API • Operator • Formation • First Prod • Cum Oil</div>
+      <div class="kpi">
+        <div><div class="small">qi (bbl/d)</div><div id="kqi">—</div></div>
+        <div><div class="small">Di (1/d)</div><div id="kdi">—</div></div>
+        <div><div class="small">b</div><div id="kb">—</div></div>
+        <div><div class="small">EUR (Mbbl)</div><div id="keur">—</div></div>
+      </div>
+      <canvas id="prodChart" width="380" height="200"></canvas>
+      <div class="small" style="margin-top:6px">Hyperbolic model: q(t)=qi / (1 + b·Di·t)^(1/b)</div>
+      <div class="cuts">
+        <div class="cut-item">
+          <div class="small">Oil/Water Cut (%)</div>
+          <canvas id="waterCutChart" width="380" height="120"></canvas>
+        </div>
+        <div class="cut-item">
+          <div class="small">Oil/Gas Cut (%)</div>
+          <canvas id="gasCutChart" width="380" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+    <section id="operators">
+      <h3>Top Operators</h3>
+      <div class="small">Ranked by total cumulative oil across wells. Draw a polygon on the map to filter by area. Click headers to sort.</div>
+      <div id="opStatus" class="small" style="margin:6px 0">Selection: All wells</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+        <label class="small">Since</label>
+        <select id="sinceYear">
+          <option value="">All</option>
+          <option value="2010">2010</option>
+          <option value="2012">2012</option>
+          <option value="2014">2014</option>
+          <option value="2016" selected>2016</option>
+          <option value="2018">2018</option>
+          <option value="2020">2020</option>
+          <option value="2022">2022</option>
+        </select>
+        <button id="applySince" style="padding:6px 10px">Apply</button>
+        <button id="clearSelection" style="padding:6px 10px">Clear Selection</button>
+        <button id="downloadCSV" style="margin-left:auto;padding:6px 10px">Download CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="opTable">
+          <thead>
+            <tr>
+              <th data-key="rank">#</th>
+              <th data-key="operator">Operator</th>
+              <th data-key="wells">Wells</th>
+              <th data-key="avg_qi">Avg qi (bopd)</th>
+              <th data-key="total_cum_oil">Total Cum (bbl)</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div style="margin-top:8px">
+        <div class="small" style="margin-bottom:4px">Wells per operator (Top 10)</div>
+        <canvas id="opBar" height="160"></canvas>
+      </div>
+    </section>
+    <section id="chat">
+      <div id="chatlog"></div>
+      <div id="chatbar">
+        <input id="q" placeholder="Ask Genie about the data…" />
+        <button id="ask">Ask</button>
+      </div>
+    </section>
+  </aside>
+</div>
+<div class="legend">Scroll to zoom. Click a well for details.</div>
+<div class="toast" id="toast"></div>
+
+<!-- Vendor globals -->
+<script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
+<script>window.mapboxgl = window.maplibregl;</script>
+<script src="https://unpkg.com/@mapbox/mapbox-gl-draw@1.5.0/dist/mapbox-gl-draw.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<!-- App entry (ES module) -->
+<script type="module" src="{{ url_for('static', filename='js/wells/main.js') }}"></script>
+</body>
+</html>
+

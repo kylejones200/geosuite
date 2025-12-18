@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='utf-8'?>
+<witsml:Trajectory xmlns:witsml="http://www.energistics.org/energyml/data/witsmlv2" xmlns:eml="http://www.energistics.org/energyml/data/commonv2" uuid="trajectory_20250924_091816" schemaVersion="2.0">
+  <eml:Citation>
+    <eml:Title>GeoSuite_Demo_Trajectory</eml:Title>
+    <eml:Creation>2025-09-24T09:18:16.675454</eml:Creation>
+  </eml:Citation>
+  <witsml:Wellbore>wellbore_001</witsml:Wellbore>
+  <witsml:ServiceCompany>GeoSuite_Survey</witsml:ServiceCompany>
+  <witsml:MagDeclination uom="dega">2.5</witsml:MagDeclination>
+  <witsml:TrajectoryStation uuid="station_0_20250924_091816">
+    <witsml:Md uom="m">0.0</witsml:Md>
+    <witsml:Tvd uom="m">0.0</witsml:Tvd>
+    <witsml:Incl uom="dega">2.35</witsml:Incl>
+    <witsml:Azi uom="dega">83.59</witsml:Azi>
+    <witsml:Dispns uom="m">-6.55</witsml:Dispns>
+    <witsml:Dispew uom="m">-41.18</witsml:Dispew>
+    <witsml:Vs uom="m">1.021</witsml:Vs>
+    <witsml:Dls uom="dega/30m">0.56</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_1_20250924_091816">
+    <witsml:Md uom="m">100.0</witsml:Md>
+    <witsml:Tvd uom="m">99.5</witsml:Tvd>
+    <witsml:Incl uom="dega">1.52</witsml:Incl>
+    <witsml:Azi uom="dega">44.00</witsml:Azi>
+    <witsml:Dispns uom="m">26.97</witsml:Dispns>
+    <witsml:Dispew uom="m">-46.24</witsml:Dispew>
+    <witsml:Vs uom="m">0.903</witsml:Vs>
+    <witsml:Dls uom="dega/30m">0.80</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_2_20250924_091816">
+    <witsml:Md uom="m">200.0</witsml:Md>
+    <witsml:Tvd uom="m">199.0</witsml:Tvd>
+    <witsml:Incl uom="dega">4.17</witsml:Incl>
+    <witsml:Azi uom="dega">126.58</witsml:Azi>
+    <witsml:Dispns uom="m">-17.24</witsml:Dispns>
+    <witsml:Dispew uom="m">27.24</witsml:Dispew>
+    <witsml:Vs uom="m">0.888</witsml:Vs>
+    <witsml:Dls uom="dega/30m">1.72</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_3_20250924_091816">
+    <witsml:Md uom="m">300.0</witsml:Md>
+    <witsml:Tvd uom="m">298.5</witsml:Tvd>
+    <witsml:Incl uom="dega">0.18</witsml:Incl>
+    <witsml:Azi uom="dega">21.33</witsml:Azi>
+    <witsml:Dispns uom="m">31.31</witsml:Dispns>
+    <witsml:Dispew uom="m">-22.01</witsml:Dispew>
+    <witsml:Vs uom="m">0.846</witsml:Vs>
+    <witsml:Dls uom="dega/30m">0.77</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_4_20250924_091816">
+    <witsml:Md uom="m">400.0</witsml:Md>
+    <witsml:Tvd uom="m">398.0</witsml:Tvd>
+    <witsml:Incl uom="dega">0.87</witsml:Incl>
+    <witsml:Azi uom="dega">240.42</witsml:Azi>
+    <witsml:Dispns uom="m">-21.81</witsml:Dispns>
+    <witsml:Dispew uom="m">-8.98</witsml:Dispew>
+    <witsml:Vs uom="m">0.867</witsml:Vs>
+    <witsml:Dls uom="dega/30m">1.67</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_5_20250924_091816">
+    <witsml:Md uom="m">500.0</witsml:Md>
+    <witsml:Tvd uom="m">497.5</witsml:Tvd>
+    <witsml:Incl uom="dega">1.10</witsml:Incl>
+    <witsml:Azi uom="dega">267.49</witsml:Azi>
+    <witsml:Dispns uom="m">40.57</witsml:Dispns>
+    <witsml:Dispew uom="m">22.61</witsml:Dispew>
+    <witsml:Vs uom="m">0.922</witsml:Vs>
+    <witsml:Dls uom="dega/30m">0.81</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_6_20250924_091816">
+    <witsml:Md uom="m">600.0</witsml:Md>
+    <witsml:Tvd uom="m">597.0</witsml:Tvd>
+    <witsml:Incl uom="dega">3.75</witsml:Incl>
+    <witsml:Azi uom="dega">119.46</witsml:Azi>
+    <witsml:Dispns uom="m">39.28</witsml:Dispns>
+    <witsml:Dispew uom="m">-18.94</witsml:Dispew>
+    <witsml:Vs uom="m">0.910</witsml:Vs>
+    <witsml:Dls uom="dega/30m">1.76</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_7_20250924_091816">
+    <witsml:Md uom="m">700.0</witsml:Md>
+    <witsml:Tvd uom="m">696.5</witsml:Tvd>
+    <witsml:Incl uom="dega">2.59</witsml:Incl>
+    <witsml:Azi uom="dega">220.81</witsml:Azi>
+    <witsml:Dispns uom="m">-46.63</witsml:Dispns>
+    <witsml:Dispew uom="m">24.17</witsml:Dispew>
+    <witsml:Vs uom="m">0.988</witsml:Vs>
+    <witsml:Dls uom="dega/30m">0.13</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_8_20250924_091816">
+    <witsml:Md uom="m">800.0</witsml:Md>
+    <witsml:Tvd uom="m">796.0</witsml:Tvd>
+    <witsml:Incl uom="dega">3.17</witsml:Incl>
+    <witsml:Azi uom="dega">161.11</witsml:Azi>
+    <witsml:Dispns uom="m">5.31</witsml:Dispns>
+    <witsml:Dispew uom="m">-3.00</witsml:Dispew>
+    <witsml:Vs uom="m">1.006</witsml:Vs>
+    <witsml:Dls uom="dega/30m">1.60</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_9_20250924_091816">
+    <witsml:Md uom="m">900.0</witsml:Md>
+    <witsml:Tvd uom="m">895.5</witsml:Tvd>
+    <witsml:Incl uom="dega">4.91</witsml:Incl>
+    <witsml:Azi uom="dega">106.53</witsml:Azi>
+    <witsml:Dispns uom="m">1.32</witsml:Dispns>
+    <witsml:Dispew uom="m">8.30</witsml:Dispew>
+    <witsml:Vs uom="m">0.814</witsml:Vs>
+    <witsml:Dls uom="dega/30m">2.89</witsml:Dls>
+  </witsml:TrajectoryStation>
+  <witsml:TrajectoryStation uuid="station_10_20250924_091816">
+    <witsml:Md uom="m">1000.0</witsml:Md>
+    <witsml:Tvd uom="m">995.0</witsml:Tvd>
+    <witsml:Incl uom="dega">0.11</witsml:Incl>
+    <witsml:Azi uom="dega">127.79</witsml:Azi>
+    <witsml:Dispns uom="m">-9.49</witsml:Dispns>
+    <witsml:Dispew uom="m">-35.13</witsml:Dispew>
+    <witsml:Vs uom="m">1.103</witsml:Vs>
+    <witsml:Dls uom="dega/30m">1.78</witsml:Dls>
+  </witsml:TrajectoryStation>
+</witsml:Trajectory>

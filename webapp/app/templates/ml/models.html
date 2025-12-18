@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block title %}GeoSuite - Model Registry{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="bi bi-archive me-2"></i>Model Registry</h2>
+                <p class="text-muted">Manage and deploy registered ML models</p>
+            </div>
+            <div>
+                <button class="btn btn-success" onclick="refreshModels()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                </button>
+                <button class="btn btn-primary" onclick="compareSelectedModels()">
+                    <i class="bi bi-bar-chart me-2"></i>Compare Models
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model Registry -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-box me-2"></i>Registered Models</h5>
+                <div>
+                    <span class="badge bg-secondary" id="model-count">0 models</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="models-container">
+                    <div class="d-flex justify-content-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading models...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model Comparison Results -->
+<div class="row mt-4" id="comparison-section" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-graph-up me-2"></i>Model Performance Comparison</h5>
+            </div>
+            <div class="card-body">
+                <div id="comparison-results"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model Actions Modal -->
+<div class="modal fade" id="modelActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-gear me-2"></i>Model Actions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="model-actions-content">
+                    <!-- Model actions will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="action-confirm-btn" style="display: none;">
+                    Confirm Action
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Model Modal -->
+<div class="modal fade" id="testModelModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-play-circle me-2"></i>Test Model</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="testModelForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Gamma Ray (API)</label>
+                                <input type="number" class="form-control" id="test-gr" value="75" step="0.1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Neutron Porosity</label>
+                                <input type="number" class="form-control" id="test-nphi" value="0.15" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Bulk Density (g/cm³)</label>
+                                <input type="number" class="form-control" id="test-rhob" value="2.45" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Photoelectric Factor</label>
+                                <input type="number" class="form-control" id="test-pe" value="2.8" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Depth (m)</label>
+                        <input type="number" class="form-control" id="test-depth" value="2000" step="1">
+                    </div>
+                </form>
+                <div id="test-results" style="display: none;" class="mt-4">
+                    <h6>Prediction Results:</h6>
+                    <div id="prediction-content"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="runModelTest()">
+                    <i class="bi bi-play me-2"></i>Run Prediction
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let registeredModels = [];
+let selectedModels = [];
+let currentTestModel = null;
+
+// Load models on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadModels();
+});
+
+function loadModels() {
+    const container = document.getElementById('models-container');
+    container.innerHTML = `
+        <div class="d-flex justify-content-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading models...</span>
+            </div>
+        </div>
+    `;
+
+    fetch('/ml/api/models')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                registeredModels = data.models;
+                displayModels(registeredModels);
+                updateModelCount(registeredModels.length);
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Failed to load models: ${data.message}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading models:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Error loading models: ${error.message}
+                </div>
+            `;
+        });
+}
+
+function displayModels(models) {
+    const container = document.getElementById('models-container');
+    
+    if (models.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-box2 text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No registered models</h5>
+                <p class="text-muted">Register models from experiments to see them here.</p>
+                <a href="/ml/experiments" class="btn btn-primary">
+                    <i class="bi bi-clipboard-data me-2"></i>View Experiments
+                </a>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '<div class="row">';
+    
+    models.forEach((model, index) => {
+        const creationDate = model.creation_time ? new Date(model.creation_time).toLocaleDateString() : 'Unknown';
+        const lastUpdated = model.last_updated ? new Date(model.last_updated).toLocaleDateString() : 'Unknown';
+        
+        html += `
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">${model.name}</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="model-${index}" 
+                                   onchange="toggleModelSelection('${model.name}')">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text small text-muted">${model.description || 'No description available'}</p>
+                        
+                        <div class="mb-2">
+                            <small><strong>Latest Version:</strong> ${model.latest_version}</small>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small><strong>Created:</strong> ${creationDate}</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small><strong>Last Updated:</strong> ${lastUpdated}</small>
+                        </div>
+                        
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-outline-primary btn-sm" onclick="testModel('${model.name}')">
+                                <i class="bi bi-play-circle"></i> Test
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" onclick="promoteModel('${model.name}', '${model.latest_version}')">
+                                <i class="bi bi-arrow-up-circle"></i> Promote
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="manageModel('${model.name}')">
+                                <i class="bi bi-gear"></i> Manage
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function updateModelCount(count) {
+    document.getElementById('model-count').textContent = `${count} model${count !== 1 ? 's' : ''}`;
+}
+
+function toggleModelSelection(modelName) {
+    const index = selectedModels.indexOf(modelName);
+    if (index > -1) {
+        selectedModels.splice(index, 1);
+    } else {
+        selectedModels.push(modelName);
+    }
+}
+
+function refreshModels() {
+    loadModels();
+}
+
+function testModel(modelName) {
+    currentTestModel = modelName;
+    
+    // Reset form
+    document.getElementById('test-gr').value = '75';
+    document.getElementById('test-nphi').value = '0.15';
+    document.getElementById('test-rhob').value = '2.45';
+    document.getElementById('test-pe').value = '2.8';
+    document.getElementById('test-depth').value = '2000';
+    
+    // Hide previous results
+    document.getElementById('test-results').style.display = 'none';
+    
+    const modal = new bootstrap.Modal(document.getElementById('testModelModal'));
+    modal.show();
+}
+
+function runModelTest() {
+    if (!currentTestModel) return;
+    
+    const testData = {
+        GR: parseFloat(document.getElementById('test-gr').value),
+        NPHI: parseFloat(document.getElementById('test-nphi').value),
+        RHOB: parseFloat(document.getElementById('test-rhob').value),
+        PE: parseFloat(document.getElementById('test-pe').value),
+        DEPTH: parseFloat(document.getElementById('test-depth').value)
+    };
+    
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Running...';
+    
+    fetch('/ml/api/load-model', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model_name: currentTestModel,
+            sample_data: testData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            displayPredictionResults(data);
+        } else {
+            alert('Model test failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Test error:', error);
+        alert('Model test failed: ' + error.message);
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-play me-2"></i>Run Prediction';
+    });
+}
+
+function displayPredictionResults(data) {
+    const resultsDiv = document.getElementById('test-results');
+    const contentDiv = document.getElementById('prediction-content');
+    
+    let html = `
+        <div class="alert alert-success">
+            <h6><strong>Predicted Facies:</strong> ${data.prediction}</h6>
+        </div>
+    `;
+    
+    if (data.prediction_probabilities) {
+        html += '<h6>Class Probabilities:</h6><div class="row">';
+        Object.entries(data.prediction_probabilities).forEach(([className, probability]) => {
+            const percentage = (probability * 100).toFixed(1);
+            html += `
+                <div class="col-md-6 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <span>${className}:</span>
+                        <strong>${percentage}%</strong>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    contentDiv.innerHTML = html;
+    resultsDiv.style.display = 'block';
+}
+
+function promoteModel(modelName, version) {
+    const stage = prompt('Select stage to promote to:', 'Production');
+    if (!stage) return;
+    
+    fetch('/ml/api/promote-model', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model_name: modelName,
+            version: version,
+            stage: stage
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+        } else {
+            alert('Model promotion failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Promotion error:', error);
+        alert('Model promotion failed: ' + error.message);
+    });
+}
+
+function manageModel(modelName) {
+    const content = document.getElementById('model-actions-content');
+    content.innerHTML = `
+        <p><strong>Model:</strong> ${modelName}</p>
+        <p>Select an action:</p>
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action" onclick="archiveModel('${modelName}')">
+                <i class="bi bi-archive me-2"></i>Archive Model
+            </a>
+            <a href="#" class="list-group-item list-group-item-action text-danger" onclick="deleteModel('${modelName}')">
+                <i class="bi bi-trash me-2"></i>Delete Model (Dangerous)
+            </a>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('modelActionsModal'));
+    modal.show();
+}
+
+function archiveModel(modelName) {
+    alert('Archive functionality not yet implemented');
+    bootstrap.Modal.getInstance(document.getElementById('modelActionsModal')).hide();
+}
+
+function deleteModel(modelName) {
+    if (confirm(`Are you sure you want to delete model "${modelName}"? This action cannot be undone.`)) {
+        alert('Delete functionality not yet implemented');
+        bootstrap.Modal.getInstance(document.getElementById('modelActionsModal')).hide();
+    }
+}
+
+function compareSelectedModels() {
+    if (selectedModels.length === 0) {
+        // Get all model names for comparison
+        const modelNames = registeredModels.map(m => m.name);
+        if (modelNames.length === 0) {
+            alert('No models available for comparison');
+            return;
+        }
+        compareModels(modelNames);
+    } else {
+        compareModels(selectedModels);
+    }
+}
+
+function compareModels(modelNames) {
+    const params = new URLSearchParams();
+    modelNames.forEach(name => params.append('models', name));
+    
+    fetch(`/ml/api/compare-models?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                displayComparisonResults(data.comparison);
+            } else {
+                alert('Comparison failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Comparison error:', error);
+            alert('Comparison failed: ' + error.message);
+        });
+}
+
+function displayComparisonResults(comparison) {
+    const section = document.getElementById('comparison-section');
+    const container = document.getElementById('comparison-results');
+    
+    if (comparison.length === 0) {
+        container.innerHTML = '<div class="alert alert-warning">No performance data available for comparison</div>';
+        section.style.display = 'block';
+        return;
+    }
+    
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Version</th>
+                        <th>Stage</th>
+                        <th>Accuracy</th>
+                        <th>Test Accuracy</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    comparison.forEach(model => {
+        const accuracy = model.accuracy ? (model.accuracy * 100).toFixed(1) + '%' : 'N/A';
+        const testAccuracy = model.test_accuracy ? (model.test_accuracy * 100).toFixed(1) + '%' : 'N/A';
+        const creationTime = model.creation_time ? new Date(model.creation_time).toLocaleDateString() : 'N/A';
+        
+        html += `
+            <tr>
+                <td>${model.model_name}</td>
+                <td>${model.version}</td>
+                <td><span class="badge bg-info">${model.stage}</span></td>
+                <td>${accuracy}</td>
+                <td>${testAccuracy}</td>
+                <td>${creationTime}</td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+    section.style.display = 'block';
+    
+    // Scroll to comparison section
+    section.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+{% endblock %}

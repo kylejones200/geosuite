@@ -1,0 +1,407 @@
+{% extends "base.html" %}
+
+{% block title %}GeoSuite - ML Experiments{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="bi bi-clipboard-data me-2"></i>ML Experiments</h2>
+                <p class="text-muted">Track and manage machine learning experiments</p>
+            </div>
+            <div>
+                <button class="btn btn-success" onclick="refreshExperiments()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                </button>
+                <button class="btn btn-primary" onclick="startNewExperiment()">
+                    <i class="bi bi-plus-circle me-2"></i>New Experiment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Controls -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Filter by Status</label>
+                        <select class="form-select" id="statusFilter" onchange="filterExperiments()">
+                            <option value="">All Status</option>
+                            <option value="FINISHED">Finished</option>
+                            <option value="RUNNING">Running</option>
+                            <option value="FAILED">Failed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Filter by Model Type</label>
+                        <select class="form-select" id="modelTypeFilter" onchange="filterExperiments()">
+                            <option value="">All Types</option>
+                            <option value="facies_classification">Facies Classification</option>
+                            <option value="log_analysis">Log Analysis</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Minimum Accuracy</label>
+                        <input type="number" class="form-control" id="accuracyFilter" 
+                               min="0" max="1" step="0.01" placeholder="0.8" onchange="filterExperiments()">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                            <i class="bi bi-x-circle me-2"></i>Clear Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Experiments Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-list-ul me-2"></i>Experiment Runs</h5>
+                <div>
+                    <span class="badge bg-secondary" id="experiment-count">0 experiments</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="experiments-container">
+                    <div class="d-flex justify-content-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading experiments...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Experiment Details Modal -->
+<div class="modal fade" id="experimentDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Experiment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="experiment-details-content">
+                    <!-- Details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="register-model-btn" onclick="registerModelFromExperiment()">
+                    <i class="bi bi-box me-2"></i>Register Model
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let allExperiments = [];
+let filteredExperiments = [];
+let selectedExperiment = null;
+
+// Load experiments on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadExperiments();
+});
+
+function loadExperiments() {
+    const container = document.getElementById('experiments-container');
+    container.innerHTML = `
+        <div class="d-flex justify-content-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading experiments...</span>
+            </div>
+        </div>
+    `;
+
+    fetch('/ml/api/experiments')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                allExperiments = data.experiments;
+                filteredExperiments = [...allExperiments];
+                displayExperiments(filteredExperiments);
+                updateExperimentCount(filteredExperiments.length);
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Failed to load experiments: ${data.message}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading experiments:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Error loading experiments: ${error.message}
+                </div>
+            `;
+        });
+}
+
+function displayExperiments(experiments) {
+    const container = document.getElementById('experiments-container');
+    
+    if (experiments.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="bi bi-clipboard2-x text-muted" style="font-size: 3rem;"></i>
+                <h5 class="text-muted mt-3">No experiments found</h5>
+                <p class="text-muted">Start a new experiment to see results here.</p>
+                <button class="btn btn-primary" onclick="startNewExperiment()">
+                    <i class="bi bi-plus-circle me-2"></i>Start New Experiment
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Run ID</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Model Type</th>
+                        <th>Accuracy</th>
+                        <th>Duration</th>
+                        <th>Started</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    experiments.forEach(exp => {
+        const runId = exp.run_id;
+        const runName = exp.run_name || 'Unnamed';
+        const status = exp.status;
+        const modelType = exp.tag_model_type || 'Unknown';
+        const accuracy = exp.metric_test_accuracy ? (exp.metric_test_accuracy * 100).toFixed(1) + '%' : 'N/A';
+        const startTime = exp.start_time ? new Date(exp.start_time).toLocaleString() : 'N/A';
+        const endTime = exp.end_time ? new Date(exp.end_time) : null;
+        const duration = startTime !== 'N/A' && endTime ? 
+            Math.round((endTime - new Date(exp.start_time)) / 1000) + 's' : 'N/A';
+
+        const statusClass = {
+            'FINISHED': 'success',
+            'RUNNING': 'primary',
+            'FAILED': 'danger',
+            'KILLED': 'warning'
+        }[status] || 'secondary';
+
+        html += `
+            <tr>
+                <td><code class="small">${runId.substring(0, 8)}...</code></td>
+                <td>${runName}</td>
+                <td><span class="badge bg-${statusClass}">${status}</span></td>
+                <td><span class="badge bg-info">${modelType}</span></td>
+                <td>${accuracy}</td>
+                <td>${duration}</td>
+                <td class="small">${startTime}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewExperimentDetails('${runId}')">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    ${status === 'FINISHED' ? `
+                        <button class="btn btn-sm btn-outline-success" onclick="registerModel('${runId}')">
+                            <i class="bi bi-box"></i>
+                        </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function updateExperimentCount(count) {
+    document.getElementById('experiment-count').textContent = `${count} experiment${count !== 1 ? 's' : ''}`;
+}
+
+function filterExperiments() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const modelTypeFilter = document.getElementById('modelTypeFilter').value;
+    const accuracyFilter = parseFloat(document.getElementById('accuracyFilter').value) || 0;
+
+    filteredExperiments = allExperiments.filter(exp => {
+        // Status filter
+        if (statusFilter && exp.status !== statusFilter) return false;
+        
+        // Model type filter
+        if (modelTypeFilter && exp.tag_model_type !== modelTypeFilter) return false;
+        
+        // Accuracy filter
+        if (accuracyFilter > 0 && (!exp.metric_test_accuracy || exp.metric_test_accuracy < accuracyFilter)) return false;
+
+        return true;
+    });
+
+    displayExperiments(filteredExperiments);
+    updateExperimentCount(filteredExperiments.length);
+}
+
+function clearFilters() {
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('modelTypeFilter').value = '';
+    document.getElementById('accuracyFilter').value = '';
+    
+    filteredExperiments = [...allExperiments];
+    displayExperiments(filteredExperiments);
+    updateExperimentCount(filteredExperiments.length);
+}
+
+function refreshExperiments() {
+    loadExperiments();
+}
+
+function startNewExperiment() {
+    // Redirect to main ML page to start new experiment
+    window.location.href = '/ml/';
+}
+
+function viewExperimentDetails(runId) {
+    selectedExperiment = allExperiments.find(exp => exp.run_id === runId);
+    if (!selectedExperiment) return;
+
+    const content = document.getElementById('experiment-details-content');
+    
+    // Build details HTML
+    let html = `
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Run ID:</strong><br>
+                <code>${selectedExperiment.run_id}</code>
+            </div>
+            <div class="col-md-6">
+                <strong>Status:</strong><br>
+                <span class="badge bg-${selectedExperiment.status === 'FINISHED' ? 'success' : 'primary'}">
+                    ${selectedExperiment.status}
+                </span>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <strong>Started:</strong><br>
+                ${selectedExperiment.start_time ? new Date(selectedExperiment.start_time).toLocaleString() : 'N/A'}
+            </div>
+            <div class="col-md-6">
+                <strong>Duration:</strong><br>
+                ${selectedExperiment.end_time && selectedExperiment.start_time ? 
+                    Math.round((new Date(selectedExperiment.end_time) - new Date(selectedExperiment.start_time)) / 1000) + 's' : 'N/A'}
+            </div>
+        </div>
+    `;
+
+    // Parameters section
+    const params = Object.entries(selectedExperiment)
+        .filter(([key, value]) => key.startsWith('param_'))
+        .map(([key, value]) => ({ key: key.replace('param_', ''), value }));
+    
+    if (params.length > 0) {
+        html += '<h6>Parameters:</h6><div class="row mb-3">';
+        params.forEach(param => {
+            html += `
+                <div class="col-md-6 mb-2">
+                    <strong>${param.key}:</strong> ${param.value}
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+
+    // Metrics section
+    const metrics = Object.entries(selectedExperiment)
+        .filter(([key, value]) => key.startsWith('metric_'))
+        .map(([key, value]) => ({ key: key.replace('metric_', ''), value }));
+    
+    if (metrics.length > 0) {
+        html += '<h6>Metrics:</h6><div class="row mb-3">';
+        metrics.forEach(metric => {
+            const value = typeof metric.value === 'number' && metric.key.includes('accuracy') ?
+                (metric.value * 100).toFixed(2) + '%' : metric.value;
+            html += `
+                <div class="col-md-6 mb-2">
+                    <strong>${metric.key}:</strong> ${value}
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+
+    content.innerHTML = html;
+    
+    // Show/hide register button based on status
+    const registerBtn = document.getElementById('register-model-btn');
+    registerBtn.style.display = selectedExperiment.status === 'FINISHED' ? 'inline-block' : 'none';
+    
+    const modal = new bootstrap.Modal(document.getElementById('experimentDetailsModal'));
+    modal.show();
+}
+
+function registerModel(runId) {
+    selectedExperiment = allExperiments.find(exp => exp.run_id === runId);
+    registerModelFromExperiment();
+}
+
+function registerModelFromExperiment() {
+    if (!selectedExperiment) return;
+
+    const modelName = prompt('Enter model name:', 'geosuite-facies-classifier');
+    if (!modelName) return;
+
+    const description = prompt('Enter model description:', 'GeoSuite facies classification model');
+
+    fetch('/ml/api/register-model', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            run_id: selectedExperiment.run_id,
+            model_name: modelName,
+            description: description
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(`Model registered successfully!\nName: ${data.model_name}\nVersion: ${data.version}`);
+            
+            // Close modal if open
+            const modal = bootstrap.Modal.getInstance(document.getElementById('experimentDetailsModal'));
+            if (modal) modal.hide();
+        } else {
+            alert('Model registration failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Registration error:', error);
+        alert('Model registration failed: ' + error.message);
+    });
+}
+</script>
+{% endblock %}

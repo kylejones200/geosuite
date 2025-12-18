@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}GeoSuite - ML Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="bi bi-robot me-2"></i>ML Model Management Dashboard</h2>
+                <p class="text-muted">MLflow-powered machine learning workflows for geological analysis</p>
+            </div>
+            <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#trainModelModal">
+                    <i class="bi bi-play-circle me-2"></i>Train New Model
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-clipboard-data text-primary" style="font-size: 2rem;"></i>
+                <h5 class="card-title mt-2">Experiments</h5>
+                <h3 class="text-primary" id="total-experiments">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-box text-success" style="font-size: 2rem;"></i>
+                <h5 class="card-title mt-2">Models</h5>
+                <h3 class="text-success" id="total-models">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-check-circle text-info" style="font-size: 2rem;"></i>
+                <h5 class="card-title mt-2">Production</h5>
+                <h3 class="text-info" id="production-models">-</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-speedometer2 text-warning" style="font-size: 2rem;"></i>
+                <h5 class="card-title mt-2">Avg Accuracy</h5>
+                <h3 class="text-warning" id="avg-accuracy">-</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Experiments -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-clock-history me-2"></i>Recent Experiments</h5>
+                <a href="{{ url_for('ml.experiments') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div id="recent-experiments">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model Registry -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-archive me-2"></i>Registered Models</h5>
+                <a href="{{ url_for('ml.models') }}" class="btn btn-sm btn-outline-success">Manage Models</a>
+            </div>
+            <div class="card-body">
+                <div id="registered-models">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="trainFaciesModel()">
+                        <i class="bi bi-layers me-2"></i>Train Facies Classifier
+                    </button>
+                    <button class="btn btn-outline-success" onclick="loadModelForTesting()">
+                        <i class="bi bi-download me-2"></i>Load Model for Testing
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="compareModels()">
+                        <i class="bi bi-bar-chart me-2"></i>Compare Model Performance
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="cleanupExperiments()">
+                        <i class="bi bi-trash me-2"></i>Cleanup Old Experiments
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6><i class="bi bi-info-circle me-2"></i>MLflow Info</h6>
+            </div>
+            <div class="card-body">
+                <p><strong>Experiment:</strong> geosuite</p>
+                <p><strong>Tracking URI:</strong> <code>file:./mlruns</code></p>
+                <p><strong>Model Types:</strong> Facies Classification, Log Analysis</p>
+                <p><strong>Framework:</strong> scikit-learn, MLflow</p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="bi bi-lightbulb me-1"></i>
+                        MLflow automatically tracks experiments, parameters, metrics, and artifacts.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Train Model Modal -->
+<div class="modal fade" id="trainModelModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-play-circle me-2"></i>Train New Facies Model</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="trainModelForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Number of Trees</label>
+                                <input type="number" class="form-control" id="n_estimators" value="100" min="10" max="500">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Max Depth</label>
+                                <input type="number" class="form-control" id="max_depth" value="10" min="1" max="50">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Random State</label>
+                                <input type="number" class="form-control" id="random_state" value="42">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Test Size</label>
+                                <input type="number" class="form-control" id="test_size" value="0.2" min="0.1" max="0.5" step="0.1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This will train a RandomForest classifier on synthetic facies data and track the experiment with MLflow.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitTraining()">
+                    <i class="bi bi-play me-2"></i>Start Training
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentTrainingModal = null;
+
+// Load dashboard data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardData();
+});
+
+function loadDashboardData() {
+    // Load experiments
+    fetch('/ml/api/experiments')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('total-experiments').textContent = data.total;
+                displayRecentExperiments(data.experiments.slice(0, 5));
+                
+                // Calculate average accuracy
+                const accuracies = data.experiments
+                    .filter(exp => exp.metric_test_accuracy)
+                    .map(exp => exp.metric_test_accuracy);
+                
+                if (accuracies.length > 0) {
+                    const avgAcc = accuracies.reduce((a, b) => a + b, 0) / accuracies.length;
+                    document.getElementById('avg-accuracy').textContent = (avgAcc * 100).toFixed(1) + '%';
+                } else {
+                    document.getElementById('avg-accuracy').textContent = 'N/A';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading experiments:', error);
+            document.getElementById('recent-experiments').innerHTML = 
+                '<div class="alert alert-warning">Failed to load experiments</div>';
+        });
+    
+    // Load registered models
+    fetch('/ml/api/models')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                document.getElementById('total-models').textContent = data.total;
+                displayRegisteredModels(data.models);
+                
+                // Count production models (placeholder)
+                document.getElementById('production-models').textContent = '0';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading models:', error);
+            document.getElementById('registered-models').innerHTML = 
+                '<div class="alert alert-warning">Failed to load models</div>';
+        });
+}
+
+function displayRecentExperiments(experiments) {
+    const container = document.getElementById('recent-experiments');
+    
+    if (experiments.length === 0) {
+        container.innerHTML = '<div class="text-muted text-center">No experiments yet</div>';
+        return;
+    }
+    
+    let html = '<div class="table-responsive"><table class="table table-sm">';
+    html += '<thead><tr><th>Run ID</th><th>Status</th><th>Accuracy</th><th>Started</th></tr></thead><tbody>';
+    
+    experiments.forEach(exp => {
+        const accuracy = exp.metric_test_accuracy ? (exp.metric_test_accuracy * 100).toFixed(1) + '%' : 'N/A';
+        const startTime = exp.start_time ? new Date(exp.start_time).toLocaleString() : 'N/A';
+        
+        html += `<tr>
+            <td><code>${exp.run_id.substring(0, 8)}...</code></td>
+            <td><span class="badge bg-${exp.status === 'FINISHED' ? 'success' : 'warning'}">${exp.status}</span></td>
+            <td>${accuracy}</td>
+            <td>${startTime}</td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+function displayRegisteredModels(models) {
+    const container = document.getElementById('registered-models');
+    
+    if (models.length === 0) {
+        container.innerHTML = '<div class="text-muted text-center">No registered models yet</div>';
+        return;
+    }
+    
+    let html = '<div class="row">';
+    models.forEach(model => {
+        html += `
+        <div class="col-md-6 mb-3">
+            <div class="border rounded p-3">
+                <h6>${model.name}</h6>
+                <p class="text-muted small mb-2">${model.description || 'No description'}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small>Version: ${model.latest_version}</small>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadModelForTesting('${model.name}')">
+                        Test
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function trainFaciesModel() {
+    const modal = new bootstrap.Modal(document.getElementById('trainModelModal'));
+    modal.show();
+}
+
+function submitTraining() {
+    const formData = {
+        n_estimators: parseInt(document.getElementById('n_estimators').value),
+        max_depth: parseInt(document.getElementById('max_depth').value),
+        random_state: parseInt(document.getElementById('random_state').value),
+        test_size: parseFloat(document.getElementById('test_size').value)
+    };
+    
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Training...';
+    
+    fetch('/ml/api/train-facies-model', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(`Model trained successfully!\nRun ID: ${data.run_id}\nTest Accuracy: ${(data.test_accuracy * 100).toFixed(1)}%`);
+            bootstrap.Modal.getInstance(document.getElementById('trainModelModal')).hide();
+            loadDashboardData(); // Refresh data
+        } else {
+            alert('Training failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Training error:', error);
+        alert('Training failed: ' + error.message);
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-play me-2"></i>Start Training';
+    });
+}
+
+function loadModelForTesting(modelName = 'geosuite-facies-classifier') {
+    const sampleData = {
+        GR: 75.0,
+        NPHI: 0.15,
+        RHOB: 2.45,
+        PE: 2.8,
+        DEPTH: 2000.0
+    };
+    
+    fetch('/ml/api/load-model', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            model_name: modelName,
+            sample_data: sampleData
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            let message = `Model: ${data.model_name}\nPrediction: ${data.prediction}\n`;
+            if (data.prediction_probabilities) {
+                message += '\nProbabilities:\n';
+                Object.entries(data.prediction_probabilities).forEach(([cls, prob]) => {
+                    message += `${cls}: ${(prob * 100).toFixed(1)}%\n`;
+                });
+            }
+            alert(message);
+        } else {
+            alert('Model loading failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Model loading error:', error);
+        alert('Model loading failed: ' + error.message);
+    });
+}
+
+function compareModels() {
+    fetch('/ml/api/compare-models')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' && data.comparison.length > 0) {
+                let message = 'Model Performance Comparison:\n\n';
+                data.comparison.forEach(model => {
+                    message += `${model.model_name} v${model.version} (${model.stage}):\n`;
+                    message += `  Accuracy: ${model.accuracy ? (model.accuracy * 100).toFixed(1) + '%' : 'N/A'}\n`;
+                    message += `  Test Accuracy: ${model.test_accuracy ? (model.test_accuracy * 100).toFixed(1) + '%' : 'N/A'}\n\n`;
+                });
+                alert(message);
+            } else {
+                alert('No models found for comparison');
+            }
+        })
+        .catch(error => {
+            console.error('Comparison error:', error);
+            alert('Comparison failed: ' + error.message);
+        });
+}
+
+function cleanupExperiments() {
+    if (confirm('This will delete old experiment runs. Continue?')) {
+        fetch('/ml/api/cleanup-experiments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                keep_last_n: 50
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(`Cleaned up ${data.deleted_runs} old experiment runs`);
+                loadDashboardData(); // Refresh data
+            } else {
+                alert('Cleanup failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Cleanup error:', error);
+            alert('Cleanup failed: ' + error.message);
+        });
+    }
+}
+</script>
+{% endblock %}
