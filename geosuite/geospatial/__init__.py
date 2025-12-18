@@ -9,7 +9,4 @@ Provides Apache Sedona-based spatial analysis capabilities for:
 - Integration with RRC, PHMSA, and other public data sources
 """
 
-__version__ = "0.1.0"
-
 __all__ = []
-

@@ -103,7 +103,7 @@ Repository = "https://github.com/kylejones200/geosuite"
 Issues = "https://github.com/kylejones200/geosuite/issues"
 
 [tool.setuptools]
-packages = ["geosuite", "geosuite.io", "geosuite.petro", "geosuite.geomech", "geosuite.ml", "geosuite.stratigraphy", "geosuite.imaging", "geosuite.geospatial", "geosuite.plotting", "geosuite.data"]
+packages = {find = {exclude = ["tests*", "examples*", "webapp*", "docs*", "benchmarks*"]}}
 
 [tool.setuptools.package-data]
 geosuite = ["data/files/*.parquet", "data/files/KSdata/*.parquet"]

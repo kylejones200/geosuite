@@ -49,10 +49,17 @@ sed -i.bak "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml && rm pypr
 # Update version in setup.py
 sed -i.bak "s/version=\"[^\"]*\"/version=\"${VERSION}\"/" setup.py && rm setup.py.bak
 
-echo "✅ Version updated in pyproject.toml and setup.py"
+# Update version in geosuite/__init__.py
+sed -i.bak "s/__version__ = \"[^\"]*\"/__version__ = \"${VERSION}\"/" geosuite/__init__.py && rm geosuite/__init__.py.bak
+
+# Update version in docs/source/conf.py
+sed -i.bak "s/version = '[^\']*'/version = '${VERSION}'/" docs/source/conf.py && rm docs/source/conf.py.bak
+sed -i.bak "s/release = '[^\']*'/release = '${VERSION}'/" docs/source/conf.py && rm docs/source/conf.py.bak
+
+echo "✅ Version updated in pyproject.toml, setup.py, geosuite/__init__.py, and docs/source/conf.py"
 
 # Commit version bump
-git add pyproject.toml setup.py
+git add pyproject.toml setup.py geosuite/__init__.py docs/source/conf.py
 git commit -m "Bump version to ${VERSION}"
 
 echo "📌 Creating tag ${TAG}..."
