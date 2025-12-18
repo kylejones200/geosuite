@@ -1,14 +1,58 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
   push:
     tags:
       - 'v*'
 
 jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Extract version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+    
+    - name: Generate release notes
+      id: release_notes
+      run: |
+        cat > release_notes.md << 'EOF'
+        # GeoSuite v${{ steps.get_version.outputs.VERSION }}
+        
+        Professional Python tools for subsurface analysis
+        
+        ## Installation
+        ```bash
+        pip install geosuite
+        ```
+        
+        ## Documentation
+        - 📚 Docs: https://geosuite.readthedocs.io/
+        - 🐙 GitHub: https://github.com/kylejones200/geosuite
+        - 📦 PyPI: https://pypi.org/project/geosuite/
+        
+        See [CHANGELOG.md](https://github.com/kylejones200/geosuite/blob/main/CHANGELOG.md) for full details.
+        EOF
+        cat release_notes.md
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: release_notes.md
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   test:
+    needs: create-release
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -80,26 +124,4 @@ jobs:
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
 
-  publish-to-testpypi:
-    name: Publish to TestPyPI
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/geosuite
-    permissions:
-      id-token: write
-    
-    steps:
-    - name: Download distribution packages
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-distributions
-        path: dist/
-    
-    - name: Publish to TestPyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
 
