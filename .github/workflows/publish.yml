@@ -113,6 +113,7 @@ jobs:
       url: https://pypi.org/p/geosuite
     permissions:
       id-token: write
+      contents: read
     
     steps:
     - name: Download distribution packages
@@ -123,5 +124,8 @@ jobs:
     
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        print-hash: true
+        verbose: true
 
 
