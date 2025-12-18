@@ -25,6 +25,7 @@ INSTALL_REQUIRES = [
     "cloudpickle>=2.2.0",
     "scipy>=1.10",
     "ruptures>=1.1",
+    "pyarrow>=14.0.0",
 ]
 
 # Optional dependencies
