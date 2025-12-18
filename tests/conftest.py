@@ -7,7 +7,7 @@ import pandas as pd
 import sys
 import os
 
-# Add geosuite_lib to path
+# Add geosuite to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 
