@@ -339,63 +339,6 @@ def plot_confusion_matrix(cm: np.ndarray,
     return fig
 
 
-def plot_confusion_matrix_plotly(cm: np.ndarray,
-                                  labels: List[str],
-                                  title: str = "Confusion Matrix",
-                                  normalize: bool = True):
-    """
-    Create a Plotly interactive heatmap of the confusion matrix.
-    
-    Args:
-        cm: Confusion matrix (numpy array)
-        labels: List of class labels
-        title: Title for the plot
-        normalize: If True, show normalized values; if False, show counts
-        
-    Returns:
-        Plotly figure object
-    """
-    try:
-        import plotly.graph_objects as go
-    except ImportError:
-        raise ImportError("plotly is required for plot_confusion_matrix_plotly. "
-                         "Install with: pip install plotly")
-    
-    # Normalize confusion matrix for display
-    if normalize:
-        cm_display = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        cm_display = np.nan_to_num(cm_display)
-        text_template = '%{z:.1%}'
-        colorbar_title = 'Normalized'
-    else:
-        cm_display = cm
-        text_template = '%{z:d}'
-        colorbar_title = 'Count'
-    
-    # Create heatmap
-    fig = go.Figure(data=go.Heatmap(
-        z=cm_display,
-        x=labels,
-        y=labels,
-        colorscale='Blues',
-        text=cm_display,
-        texttemplate=text_template,
-        textfont={"size": 10},
-        colorbar=dict(title=colorbar_title)
-    ))
-    
-    # Update layout
-    fig.update_layout(
-        title=title,
-        xaxis=dict(title="Predicted Label", side="bottom"),
-        yaxis=dict(title="True Label", autorange="reversed"),
-        width=600,
-        height=600
-    )
-    
-    return fig
-
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
     

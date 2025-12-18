@@ -4,8 +4,7 @@ from .confusion_matrix_utils import (
     display_adj_cm,
     confusion_matrix_to_dataframe,
     compute_metrics_from_cm,
-    plot_confusion_matrix,
-    plot_confusion_matrix_plotly
+    plot_confusion_matrix
 )
 
 __all__ = [
@@ -15,7 +14,6 @@ __all__ = [
     "confusion_matrix_to_dataframe",
     "compute_metrics_from_cm",
     "plot_confusion_matrix",
-    "plot_confusion_matrix_plotly",
 ]
 
 # Make MLflow-enhanced classifiers optional

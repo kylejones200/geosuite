@@ -9,7 +9,7 @@ from geosuite.ml.confusion_matrix_utils import (
     display_adj_cm,
     confusion_matrix_to_dataframe,
     compute_metrics_from_cm,
-    plot_confusion_matrix_plotly
+    plot_confusion_matrix
 )
 
 
@@ -185,42 +185,40 @@ class TestComputeMetricsFromCM:
         assert not metrics_df['Precision'].isna().any()
 
 
-class TestPlotConfusionMatrixPlotly:
-    """Tests for plot_confusion_matrix_plotly function."""
+class TestPlotConfusionMatrixMatplotlib:
+    """Tests for plot_confusion_matrix (matplotlib) function."""
     
     def test_basic_plot(self, sample_confusion_matrix, sample_labels):
-        """Test basic Plotly figure creation."""
-        fig = plot_confusion_matrix_plotly(
+        """Test basic matplotlib figure creation."""
+        fig = plot_confusion_matrix(
             sample_confusion_matrix,
             sample_labels
         )
         
         assert fig is not None
-        assert hasattr(fig, 'data')
-        assert len(fig.data) > 0
+        assert hasattr(fig, 'axes')
+        assert len(fig.axes) > 0
     
     def test_custom_title(self, sample_confusion_matrix, sample_labels):
         """Test custom title."""
         custom_title = "Test Confusion Matrix"
-        fig = plot_confusion_matrix_plotly(
+        fig = plot_confusion_matrix(
             sample_confusion_matrix,
             sample_labels,
             title=custom_title
         )
         
-        assert fig.layout.title.text == custom_title
+        assert fig.axes[0].get_title() == custom_title
     
-    def test_figure_layout(self, sample_confusion_matrix, sample_labels):
-        """Test figure layout properties."""
-        fig = plot_confusion_matrix_plotly(
+    def test_normalized_plot(self, sample_confusion_matrix, sample_labels):
+        """Test normalized confusion matrix plot."""
+        fig = plot_confusion_matrix(
             sample_confusion_matrix,
-            sample_labels
+            sample_labels,
+            normalize=True
         )
         
-        assert fig.layout.xaxis.title.text == "Predicted Label"
-        assert fig.layout.yaxis.title.text == "True Label"
-        assert fig.layout.width == 600
-        assert fig.layout.height == 600
+        assert fig is not None
 
 
 class TestEdgeCases:
@@ -292,8 +290,8 @@ class TestIntegration:
         )
         assert isinstance(metrics, pd.DataFrame)
         
-        # Plot
-        fig = plot_confusion_matrix_plotly(
+        # Plot with matplotlib
+        fig = plot_confusion_matrix(
             sample_confusion_matrix,
             sample_labels
         )
