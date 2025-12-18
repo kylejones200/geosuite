@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
-from geosuite_lib.ml.classifiers import train_and_predict, FaciesResult
+from geosuite.ml.classifiers import train_and_predict, FaciesResult
 
 
 class TestTrainAndPredict:

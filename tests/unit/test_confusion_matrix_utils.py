@@ -4,7 +4,7 @@ Unit tests for confusion matrix utilities.
 import pytest
 import numpy as np
 import pandas as pd
-from geosuite_lib.ml.confusion_matrix_utils import (
+from geosuite.ml.confusion_matrix_utils import (
     display_cm,
     display_adj_cm,
     confusion_matrix_to_dataframe,

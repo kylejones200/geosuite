@@ -3,7 +3,7 @@ Unit tests for demo dataset loading functions.
 """
 import pytest
 import pandas as pd
-from geosuite_lib.data import demo_datasets
+from geosuite.data import demo_datasets
 
 
 class TestDemoDatasets:

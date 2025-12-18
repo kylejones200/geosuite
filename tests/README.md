@@ -89,7 +89,7 @@ pytest -m "not slow"
 Unit tests for module_name.
 """
 import pytest
-from geosuite_lib.module import function_to_test
+from geosuite.module import function_to_test
 
 
 class TestFunctionName:
