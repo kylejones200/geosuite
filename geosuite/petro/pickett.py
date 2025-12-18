@@ -1,12 +1,18 @@
 """
 Pickett plot creation for porosity-resistivity analysis.
+
+All plots use signalplot for consistent, minimalist styling.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import signalplot
 from typing import Optional, Tuple
 from matplotlib.figure import Figure
+
+# Apply signalplot style globally for this module
+signalplot.apply()
 
 
 def pickett_plot(
@@ -84,23 +90,21 @@ def pickett_plot(
     ax.set_yscale('log')
     
     # Labels and title
-    ax.set_xlabel('Porosity (v/v)', fontsize=11)
-    ax.set_ylabel('Resistivity (ohm-m)', fontsize=11)
-    ax.set_title(title, fontsize=12, pad=10)
+    ax.set_xlabel('Porosity (v/v)')
+    ax.set_ylabel('Resistivity (ohm-m)')
+    ax.set_title(title)
     
     # Legend
     if show_water_line or show_sw_lines:
-        ax.legend(frameon=False, fontsize=9, loc='best')
+        ax.legend(loc='best')
     
     # Add parameter text
     param_text = f'm={m}, n={n}, a={a}, Rw={rw}'
     ax.text(0.02, 0.98, param_text, transform=ax.transAxes,
-            verticalalignment='top', fontsize=9,
+            verticalalignment='top',
             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8, edgecolor='gray'))
     
-    # Clean up spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # signalplot handles spines automatically
     
     plt.tight_layout()
     return fig

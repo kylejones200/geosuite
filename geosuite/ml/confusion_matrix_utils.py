@@ -4,13 +4,19 @@ Ported from facies_classification-master and updated for Python 3.
 
 Based on work by Brendon Hall and Zach Guo's print_cm gist:
 https://gist.github.com/zachguo/10296432
+
+All plots use signalplot for consistent, minimalist styling.
 """
 
 import logging
 import numpy as np
 import pandas as pd
+import signalplot
 from typing import List, Optional, Union
 from geosuite.utils.numba_helpers import njit
+
+# Apply signalplot style globally for this module
+signalplot.apply()
 
 logger = logging.getLogger(__name__)
 

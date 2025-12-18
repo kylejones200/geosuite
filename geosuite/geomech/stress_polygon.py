@@ -1,12 +1,18 @@
 """
 Stress polygon analysis for faulting regime determination.
+
+All plots use signalplot for consistent, minimalist styling.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import signalplot
 from typing import Tuple, Dict
 from matplotlib.figure import Figure
+
+# Apply signalplot style globally for this module
+signalplot.apply()
 
 
 def stress_polygon_limits(

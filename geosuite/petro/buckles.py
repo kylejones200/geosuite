@@ -1,12 +1,18 @@
 """
 Buckles plot for bulk volume water analysis.
+
+All plots use signalplot for consistent, minimalist styling.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import signalplot
 from typing import Optional, Tuple
 from matplotlib.figure import Figure
+
+# Apply signalplot style globally for this module
+signalplot.apply()
 
 
 def buckles_plot(

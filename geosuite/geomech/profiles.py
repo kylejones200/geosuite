@@ -1,12 +1,18 @@
 """
 Generate depth profiles for pressure and stress visualization.
+
+All plots use signalplot for consistent, minimalist styling.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import signalplot
 from typing import Optional, Tuple
 from matplotlib.figure import Figure
+
+# Apply signalplot style globally for this module
+signalplot.apply()
 
 
 def plot_pressure_profile(
@@ -65,19 +71,17 @@ def plot_pressure_profile(
                    label=col)
     
     # Labels and title
-    ax.set_xlabel(f'Pressure ({pressure_units})', fontsize=11)
-    ax.set_ylabel(f'Depth ({depth_units})', fontsize=11)
-    ax.set_title(title, fontsize=12, pad=10)
+    ax.set_xlabel(f'Pressure ({pressure_units})')
+    ax.set_ylabel(f'Depth ({depth_units})')
+    ax.set_title(title)
     
-    # Invert y-axis for depth
+    # Invert y-axis for depth (geological convention)
     ax.invert_yaxis()
     
     # Legend
-    ax.legend(frameon=False, fontsize=9, loc='best')
+    ax.legend(loc='best')
     
-    # Clean up spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # signalplot handles spines automatically
     
     # Grid
     ax.grid(True, alpha=0.3, linestyle=':')

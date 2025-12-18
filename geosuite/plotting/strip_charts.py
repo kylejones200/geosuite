@@ -3,14 +3,20 @@ Strip chart (well log plot) creation functions.
 
 This module provides functions to create strip charts for
 visualizing well log data in the traditional multi-track format.
+
+All plots use signalplot for consistent, minimalist styling.
 """
 
 import logging
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import signalplot
 from matplotlib.figure import Figure
 from typing import List, Dict, Optional, Union, Tuple
+
+# Apply signalplot style globally for this module
+signalplot.apply()
 
 logger = logging.getLogger(__name__)
 
@@ -199,16 +205,12 @@ def add_log_track(
     if log_range:
         ax.set_xlim(log_range)
     
-    ax.set_xlabel(f'{log_name}\n({unit})' if unit else log_name, fontsize=9)
-    ax.tick_params(axis='both', labelsize=8)
-    ax.grid(True, alpha=0.3, linestyle=':')
+    ax.set_xlabel(f'{log_name}\n({unit})' if unit else log_name)
     
-    # Invert y-axis for depth
+    # Invert y-axis for depth (geological convention)
     ax.invert_yaxis()
     
-    # Clean up spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # signalplot handles spines and grid automatically
 
 
 def add_facies_track(
@@ -245,7 +247,7 @@ def add_facies_track(
         ax.fill_betweenx([depth[i], depth[i+1]], 0, 1, 
                          color=color, alpha=0.8)
     
-    ax.set_xlabel('Facies', fontsize=9)
+    ax.set_xlabel('Facies')
     ax.set_xlim(0, 1)
     ax.set_xticks([])
     ax.invert_yaxis()
@@ -259,13 +261,9 @@ def add_facies_track(
             handles.append(plt.Rectangle((0, 0), 1, 1, fc=color, alpha=0.8))
             labels.append(str(facies_name))
     
-    ax.legend(handles, labels, loc='upper right', fontsize=7, 
-              frameon=False, bbox_to_anchor=(1.0, 1.0))
+    ax.legend(handles, labels, loc='upper right', frameon=False, bbox_to_anchor=(1.0, 1.0))
     
-    # Clean up spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['bottom'].set_visible(False)
+    # signalplot handles spines automatically
 
 
 def create_facies_log_plot(
