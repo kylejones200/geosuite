@@ -59,11 +59,11 @@ def verify_imports():
                 else:
                     passed += 1
             
-            logger.info(f"✅ {module_name}: {len(functions)} functions verified")
+            logger.info(f"{module_name}: {len(functions)} functions verified")
             
         except ImportError as e:
             failed.append(f"{module_name}: {e}")
-            logger.error(f"❌ {module_name}: Import failed")
+            logger.error(f"{module_name}: Import failed")
     
     return passed, failed
 
@@ -101,14 +101,14 @@ def verify_top_level_imports():
                 missing.append(func)
         
         if missing:
-            logger.error(f"❌ Missing top-level functions: {missing}")
+            logger.error(f"Missing top-level functions: {missing}")
             return False
         
-        logger.info(f"✅ All {len(top_level_functions)} top-level functions accessible")
+        logger.info(f"All {len(top_level_functions)} top-level functions accessible")
         return True
         
     except Exception as e:
-        logger.error(f"❌ Top-level import verification failed: {e}")
+        logger.error(f"Top-level import verification failed: {e}")
         return False
 
 
@@ -128,13 +128,13 @@ def verify_module_info():
         
         logger.info("Available modules:")
         for module, available in info['modules'].items():
-            status = "✅" if available else "❌"
+            status = "OK" if available else "FAIL"
             logger.info(f"  {status} {module}")
         
         return True
         
     except Exception as e:
-        logger.error(f"❌ Module info verification failed: {e}")
+        logger.error(f"Module info verification failed: {e}")
         return False
 
 
@@ -167,10 +167,10 @@ def main():
             logger.error(f"  - {failure}")
     
     if failed or not top_level_ok or not info_ok:
-        logger.error("\n❌ VERIFICATION FAILED")
+        logger.error("\nVERIFICATION FAILED")
         sys.exit(1)
     else:
-        logger.info("\n✅ ALL VERIFICATIONS PASSED")
+        logger.info("\nALL VERIFICATIONS PASSED")
         logger.info("\nAll notebook functionality successfully converted to production code!")
         logger.info("GeoSuite is ready for production use.")
         sys.exit(0)
