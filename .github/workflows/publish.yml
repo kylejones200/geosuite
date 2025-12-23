@@ -34,9 +34,9 @@ jobs:
         ```
         
         ## Documentation
-        - 📚 Docs: https://geosuite.readthedocs.io/
-        - 🐙 GitHub: https://github.com/kylejones200/geosuite
-        - 📦 PyPI: https://pypi.org/project/geosuite/
+        - Docs: https://geosuite.readthedocs.io/
+        - GitHub: https://github.com/kylejones200/geosuite
+        - PyPI: https://pypi.org/project/geosuite/
         
         See [CHANGELOG.md](https://github.com/kylejones200/geosuite/blob/main/CHANGELOG.md) for full details.
         EOF
