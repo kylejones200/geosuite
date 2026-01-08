@@ -289,8 +289,8 @@ class TestUncertaintyPermeability:
     
     def test_wyllie_rose_uncertainty(self):
         """Test Wyllie-Rose permeability uncertainty."""
-        phi = np.array([0.20])
-        sw = np.array([0.30])
+        phi = np.array([0.20, 0.25])
+        sw = np.array([0.30, 0.35])
         
         perm, perm_error = uncertainty_permeability(
             phi, sw, 0.02, 0.05,
@@ -299,8 +299,8 @@ class TestUncertaintyPermeability:
             n_samples=1000
         )
         
-        assert len(perm) == 1
-        assert perm_error[0] > 0
+        assert len(perm) == len(phi)
+        assert np.all(perm_error > 0)
     
     def test_invalid_method(self):
         """Test error with invalid method."""
