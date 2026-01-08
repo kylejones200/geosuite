@@ -26,7 +26,7 @@
 
 
 **⬜ Remaining:**
-- ⬜ Permeability estimation models (empirical relationships)
+- ✅ Permeability estimation models (empirical relationships) - Kozeny-Carman, Timur, Wyllie-Rose, Coates-Dumanoir, Tixier
 - ⬜ Uncertainty quantification:
   - Error propagation for derived quantities
   - Confidence intervals for calculations

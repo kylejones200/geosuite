@@ -27,6 +27,14 @@ from .rock_physics import (
     calculate_fluid_bulk_modulus,
     calculate_density_from_velocity,
 )
+from .permeability import (
+    calculate_permeability_kozeny_carman,
+    calculate_permeability_timur,
+    calculate_permeability_wyllie_rose,
+    calculate_permeability_coates_dumanoir,
+    calculate_permeability_tixier,
+    calculate_permeability_porosity_only,
+)
 
 __all__ = [
     # Archie module (existing)
@@ -54,4 +62,12 @@ __all__ = [
     "gassmann_fluid_substitution",
     "calculate_fluid_bulk_modulus",
     "calculate_density_from_velocity",
+    
+    # Permeability estimation
+    "calculate_permeability_kozeny_carman",
+    "calculate_permeability_timur",
+    "calculate_permeability_wyllie_rose",
+    "calculate_permeability_coates_dumanoir",
+    "calculate_permeability_tixier",
+    "calculate_permeability_porosity_only",
 ]
