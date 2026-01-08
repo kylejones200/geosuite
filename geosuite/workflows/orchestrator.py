@@ -43,8 +43,11 @@ def _add_to_dataframe(df: pd.DataFrame, columns: dict) -> pd.DataFrame:
 def _register_default_steps():
     """Register default workflow steps."""
     # Data loading
-    from ..io.las_loader import load_las
-    register_step("load_las", load_las)
+    try:
+        from ..io.las_loader import load_las_file
+        register_step("load_las", load_las_file)
+    except ImportError:
+        pass  # lasio not available
     register_step("load_demo_data", load_demo_well_logs)
     register_step("add_to_dataframe", _add_to_dataframe)
     
