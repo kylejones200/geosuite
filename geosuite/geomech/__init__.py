@@ -32,6 +32,24 @@ from .profiles import (
     plot_pressure_profile,
     plot_mud_weight_profile
 )
+from .stress_inversion import (
+    invert_stress_from_breakout,
+    invert_stress_from_dif,
+    invert_stress_combined,
+)
+from .fracture_orientation import (
+    predict_fracture_orientation,
+    fracture_orientation_distribution,
+    calculate_fracture_aperture,
+    calculate_fracture_permeability,
+)
+from .failure_criteria import (
+    mohr_coulomb_failure,
+    drucker_prager_failure,
+    hoek_brown_failure,
+    griffith_failure,
+    calculate_failure_envelope,
+)
 
 __all__ = [
     # Pressure calculations
@@ -57,5 +75,23 @@ __all__ = [
     # Profiles
     "plot_pressure_profile",
     "plot_mud_weight_profile",
+    
+    # Stress inversion
+    "invert_stress_from_breakout",
+    "invert_stress_from_dif",
+    "invert_stress_combined",
+    
+    # Fracture orientation
+    "predict_fracture_orientation",
+    "fracture_orientation_distribution",
+    "calculate_fracture_aperture",
+    "calculate_fracture_permeability",
+    
+    # Failure criteria
+    "mohr_coulomb_failure",
+    "drucker_prager_failure",
+    "hoek_brown_failure",
+    "griffith_failure",
+    "calculate_failure_envelope",
 ]
 

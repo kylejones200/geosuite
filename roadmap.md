@@ -32,10 +32,10 @@
   - ✅ Confidence intervals for calculations
   - ✅ Monte Carlo uncertainty analysis
   - ✅ Petrophysical-specific uncertainty functions (porosity, water saturation, permeability)
-- ⬜ Geomechanics enhancements:
-  - Stress inversion tools
-  - Fracture orientation models
-  - Advanced failure criteria
+- ✅ Geomechanics enhancements:
+  - ✅ Stress inversion tools (breakout, DIF, combined)
+  - ✅ Fracture orientation models (Coulomb, Griffith, tensile)
+  - ✅ Advanced failure criteria (Mohr-Coulomb, Drucker-Prager, Hoek-Brown, Griffith)
 - ⬜ Advanced stratigraphy:
   - ML-based time series segmentation
   - Multi-log boundary detection
