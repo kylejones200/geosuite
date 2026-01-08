@@ -10,6 +10,13 @@ import os
 # Add geosuite_lib to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+# Import test helpers
+from .helpers import (
+    generate_synthetic_well_log,
+    generate_synthetic_facies,
+    generate_synthetic_pressure_data,
+)
+
 
 @pytest.fixture
 def sample_confusion_matrix():
@@ -103,4 +110,23 @@ def adjacent_facies():
         [0, 2],   # Shaly_Sand adjacent to Sand and Siltstone
         [1]       # Siltstone adjacent to Shaly_Sand
     ]
+
+
+@pytest.fixture
+def synthetic_well_log():
+    """Generate synthetic well log data."""
+    return generate_synthetic_well_log(n_samples=100, seed=42)
+
+
+@pytest.fixture
+def synthetic_facies():
+    """Generate synthetic facies labels."""
+    return generate_synthetic_facies(n_samples=100, seed=42)
+
+
+@pytest.fixture
+def synthetic_pressure_data():
+    """Generate synthetic pressure data."""
+    depth = np.arange(1000, 2000, 1.0)
+    return generate_synthetic_pressure_data(depth)
 
