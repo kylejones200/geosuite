@@ -12,11 +12,18 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+# Import version from package
+try:
+    from geosuite import __version__
+    version = __version__
+    release = __version__
+except ImportError:
+    version = '0.1.3'
+    release = '0.1.3'
+
 project = 'GeoSuite'
 copyright = '2025, GeoSuite Contributors'
 author = 'GeoSuite Contributors'
-release = '0.1.3'
-version = '0.1.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -104,6 +111,13 @@ master_doc = 'index'
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+# Versioning support
+html_context = {
+    'display_version': True,
+    'current_version': version,
+    'version': version,
+}
 
 # Theme options
 html_theme_options = {

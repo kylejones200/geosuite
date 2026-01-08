@@ -20,8 +20,6 @@ signalplot.apply()
 
 logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
-
 
 @njit(cache=True)
 def _adjust_confusion_matrix_kernel(cm: np.ndarray, adjacent_facies_array: np.ndarray) -> np.ndarray:

@@ -15,7 +15,9 @@ from sklearn.preprocessing import StandardScaler
 import tempfile
 import os
 import sys
-from typing import Dict, Tuple, List, Any, Optional
+from typing import Dict, Tuple, List, Any, Optional, Union
+
+from ..base.estimators import BaseEstimator
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +42,7 @@ except ImportError:
     MLflowService = None
 
 
-class MLflowFaciesClassifier:
+class MLflowFaciesClassifier(BaseEstimator):
     """Enhanced facies classifier with MLflow experiment tracking."""
     
     def __init__(self, mlflow_service: MLflowService = None):
@@ -50,12 +52,14 @@ class MLflowFaciesClassifier:
         Args:
             mlflow_service: MLflowService instance for tracking
         """
+        super().__init__()
         self.mlflow_service = mlflow_service or (MLflowService() if MLflowService else None)
         self.model = None
         self.scaler = None
         self.feature_names = None
         self.classes = None
         self.current_run_id = None
+        self._estimator_type = 'classifier'
         
     def prepare_synthetic_data(self, n_samples: int = 1000, random_state: int = 42) -> Tuple[pd.DataFrame, pd.Series]:
         """
@@ -103,6 +107,46 @@ class MLflowFaciesClassifier:
         y = pd.Series(np.select(conditions, choices, default='Mudstone'))
         
         return X, y
+    
+    def fit(
+        self,
+        X: Union[np.ndarray, pd.DataFrame],
+        y: Union[np.ndarray, pd.Series],
+        model_type: str = 'random_forest',
+        test_size: float = 0.2,
+        scale_features: bool = True,
+        cv_folds: int = 5,
+        **model_params
+    ) -> 'MLflowFaciesClassifier':
+        """
+        Fit the classifier to training data.
+        
+        Args:
+            X: Feature array or DataFrame
+            y: Target array or Series
+            model_type: Type of model to train, default 'random_forest'
+            test_size: Fraction of data to use for testing, default 0.2
+            scale_features: Whether to scale features, default True
+            cv_folds: Number of cross-validation folds, default 5
+            **model_params: Additional model parameters
+            
+        Returns:
+            self
+        """
+        if isinstance(X, np.ndarray):
+            X = pd.DataFrame(X)
+        if isinstance(y, np.ndarray):
+            y = pd.Series(y)
+        
+        self.train_model(
+            X, y,
+            model_type=model_type,
+            test_size=test_size,
+            scale_features=scale_features,
+            cv_folds=cv_folds,
+            **model_params
+        )
+        return self
     
     def train_model(self, X: pd.DataFrame, y: pd.Series, 
                    model_type: str = 'random_forest',
@@ -308,18 +352,21 @@ class MLflowFaciesClassifier:
         finally:
             mlflow.end_run()
     
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
+    def predict(self, X: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """
         Make predictions using the trained model.
         
         Args:
-            X: Feature DataFrame
+            X: Feature array or DataFrame
             
         Returns:
-            Predicted class labels
+            Predicted class labels as numpy array
         """
         if self.model is None:
             raise ValueError("Model not trained yet")
+        
+        if isinstance(X, np.ndarray):
+            X = pd.DataFrame(X)
         
         X_processed = X.copy()
         if self.scaler:

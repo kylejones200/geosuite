@@ -6,8 +6,13 @@
 
 # Flask web framework
 Flask>=3.0.0
+Werkzeug>=3.0.0
 python-dotenv>=1.0.0
 gunicorn>=21.0.0
+flask-restx>=1.1.0
+flasgger>=0.9.7.1
+reportlab>=4.0.0
+openpyxl>=3.1.0
 
 # Dash for interactive dashboards
 dash>=2.16

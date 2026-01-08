@@ -3,15 +3,19 @@ Petrophysical calculations (Archie, porosity, etc.).
 """
 
 import numpy as np
+import pandas as pd
+from typing import Union, Optional
+from ..config import get_config, ConfigManager
 
 
 def calculate_water_saturation(
-    phi: np.ndarray,
-    rt: np.ndarray,
-    rw: float = 0.05,
-    m: float = 2.0,
-    n: float = 2.0,
-    a: float = 1.0
+    phi: Union[np.ndarray, pd.Series],
+    rt: Union[np.ndarray, pd.Series],
+    rw: Optional[float] = None,
+    m: Optional[float] = None,
+    n: Optional[float] = None,
+    a: Optional[float] = None,
+    config: Optional[ConfigManager] = None
 ) -> np.ndarray:
     """
     Calculate water saturation using Archie's equation.
@@ -19,16 +23,36 @@ def calculate_water_saturation(
     Sw = ((a * Rw) / (phi^m * Rt))^(1/n)
     
     Args:
-        phi: Porosity (fraction)
+        phi: Porosity (fraction, 0-1)
         rt: True resistivity (ohm-m)
-        rw: Formation water resistivity (ohm-m)
-        m: Cementation exponent
-        n: Saturation exponent
-        a: Tortuosity factor
+        rw: Formation water resistivity (ohm-m). If None, reads from config.
+        m: Cementation exponent. If None, reads from config.
+        n: Saturation exponent. If None, reads from config.
+        a: Tortuosity factor. If None, reads from config.
+        config: ConfigManager instance. If None, uses global config.
         
     Returns:
-        Water saturation array
+        Water saturation (fraction, 0-1) as numpy array
     """
+    # Load from config if not provided
+    if rw is None:
+        rw = config.get("petro.archie.rw", 0.05) if config else get_config("petro.archie.rw", 0.05)
+    if m is None:
+        m = config.get("petro.archie.m", 2.0) if config else get_config("petro.archie.m", 2.0)
+    if n is None:
+        n = config.get("petro.archie.n", 2.0) if config else get_config("petro.archie.n", 2.0)
+    if a is None:
+        a = config.get("petro.archie.a", 1.0) if config else get_config("petro.archie.a", 1.0)
+    
+    phi = np.asarray(phi, dtype=float)
+    rt = np.asarray(rt, dtype=float)
+    
+    if len(phi) == 0 or len(rt) == 0:
+        raise ValueError("Porosity and resistivity arrays must not be empty")
+    
+    if len(phi) != len(rt):
+        raise ValueError("Porosity and resistivity arrays must have same length")
+    
     phi = np.where(phi <= 0, np.nan, phi)
     rt = np.where(rt <= 0, np.nan, rt)
     
@@ -39,9 +63,10 @@ def calculate_water_saturation(
 
 
 def calculate_porosity_from_density(
-    rhob: np.ndarray,
-    rho_matrix: float = 2.65,
-    rho_fluid: float = 1.0
+    rhob: Union[np.ndarray, pd.Series],
+    rho_matrix: Optional[float] = None,
+    rho_fluid: Optional[float] = None,
+    config: Optional[ConfigManager] = None
 ) -> np.ndarray:
     """
     Calculate porosity from bulk density.
@@ -50,12 +75,24 @@ def calculate_porosity_from_density(
     
     Args:
         rhob: Bulk density (g/cc)
-        rho_matrix: Matrix density (g/cc)
-        rho_fluid: Fluid density (g/cc)
+        rho_matrix: Matrix density (g/cc). If None, reads from config.
+        rho_fluid: Fluid density (g/cc). If None, reads from config.
+        config: ConfigManager instance. If None, uses global config.
         
     Returns:
-        Porosity array (fraction)
+        Porosity (fraction, 0-1) as numpy array
     """
+    # Load from config if not provided
+    if rho_matrix is None:
+        rho_matrix = config.get("petro.density.rho_matrix", 2.65) if config else get_config("petro.density.rho_matrix", 2.65)
+    if rho_fluid is None:
+        rho_fluid = config.get("petro.density.rho_fluid", 1.0) if config else get_config("petro.density.rho_fluid", 1.0)
+    
+    rhob = np.asarray(rhob, dtype=float)
+    
+    if len(rhob) == 0:
+        raise ValueError("Bulk density array must not be empty")
+    
     phi = (rho_matrix - rhob) / (rho_matrix - rho_fluid)
     phi = np.clip(phi, 0, 1)
     
@@ -63,9 +100,10 @@ def calculate_porosity_from_density(
 
 
 def calculate_formation_factor(
-    phi: np.ndarray,
-    m: float = 2.0,
-    a: float = 1.0
+    phi: Union[np.ndarray, pd.Series],
+    m: Optional[float] = None,
+    a: Optional[float] = None,
+    config: Optional[ConfigManager] = None
 ) -> np.ndarray:
     """
     Calculate formation resistivity factor.
@@ -73,13 +111,25 @@ def calculate_formation_factor(
     F = a / phi^m
     
     Args:
-        phi: Porosity (fraction)
-        m: Cementation exponent
-        a: Tortuosity factor
+        phi: Porosity (fraction, 0-1)
+        m: Cementation exponent. If None, reads from config.
+        a: Tortuosity factor. If None, reads from config.
+        config: ConfigManager instance. If None, uses global config.
         
     Returns:
-        Formation factor array
+        Formation factor as numpy array
     """
+    # Load from config if not provided
+    if m is None:
+        m = config.get("petro.archie.m", 2.0) if config else get_config("petro.archie.m", 2.0)
+    if a is None:
+        a = config.get("petro.archie.a", 1.0) if config else get_config("petro.archie.a", 1.0)
+    
+    phi = np.asarray(phi, dtype=float)
+    
+    if len(phi) == 0:
+        raise ValueError("Porosity array must not be empty")
+    
     phi = np.where(phi <= 0, np.nan, phi)
     return a / (phi ** m)
 

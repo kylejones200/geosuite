@@ -1,0 +1,69 @@
+# Geomechanical Analysis Workflow
+# Demonstrates config-driven geomechanical calculations
+
+# Optional: Path to config file
+# config: "geosuite/config/default_config.yaml"
+
+name: "Geomechanical Model from Well Logs"
+description: "Build geomechanical model: calculate stresses, pore pressure, stress polygon"
+
+steps:
+  # Load well log data
+  - name: load_data
+    type: load_demo_data
+    params: {}
+
+  # Calculate overburden stress (uses config for g if not provided)
+  - name: calculate_sv
+    type: calculate_overburden_stress
+    description: "Calculate vertical stress from density log"
+    params:
+      depth: "${load_data.output.DEPTH}"
+      rhob: "${load_data.output.RHOB}"
+      # g will be read from config.geomech.default.g if not specified
+
+  # Calculate hydrostatic pressure
+  - name: calculate_ph
+    type: calculate_hydrostatic_pressure
+    description: "Calculate hydrostatic pressure"
+    params:
+      depth: "${load_data.output.DEPTH}"
+      # rho_water and g read from config
+
+  # Calculate pore pressure (if sonic available)
+  - name: calculate_pp
+    type: calculate_pore_pressure
+    description: "Estimate pore pressure using Eaton's method"
+    params:
+      depth: "${load_data.output.DEPTH}"
+      dt: "${load_data.output.DTC}"  # Sonic transit time
+      dt_normal: "${calculate_ph.output}"  # Simplified - use actual normal trend
+      sv: "${calculate_sv.output}"
+      ph: "${calculate_ph.output}"
+      # exponent read from config.geomech.pore_pressure.eaton.exponent
+
+  # Stress polygon analysis at specific depth
+  - name: stress_polygon
+    type: stress_polygon_limits
+    description: "Calculate stress polygon limits for SHmax constraints"
+    params:
+      sv: 45.0  # Example value at specific depth
+      pp: 32.0  # Example pore pressure
+      shmin: 30.0  # Example minimum horizontal stress
+      # mu and cohesion can be read from config
+
+  # Visualize stress polygon
+  - name: plot_polygon
+    type: plot_stress_polygon
+    description: "Create stress polygon visualization"
+    params:
+      depths: "${load_data.output.DEPTH}"
+      sv: "${calculate_sv.output}"
+      pp: "${calculate_pp.output}"
+      shmin: "${calculate_sv.output}"  # Simplified - use LOT data in practice
+      # mu, cohesion from config
+
+options:
+  stop_on_error: true
+  output_dir: "./geomech_results"
+

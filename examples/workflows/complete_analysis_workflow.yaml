@@ -1,0 +1,67 @@
+# Complete Integrated Analysis Workflow
+# Combines petrophysics, geomechanics, and stratigraphy
+
+# Optional: Path to config file
+# config: "geosuite/config/default_config.yaml"
+
+name: "Complete Well Analysis"
+description: "Full workflow: petrophysics, geomechanics, change-point detection"
+
+steps:
+  # 1. Load data
+  - name: load_well
+    type: load_demo_data
+    params: {}
+
+  # 2. Petrophysical analysis
+  - name: porosity
+    type: calculate_porosity
+    params:
+      rhob: "${load_well.output.RHOB}"
+
+  - name: water_saturation
+    type: calculate_water_saturation
+    params:
+      phi: "${porosity.output}"
+      rt: "${load_well.output.RT}"
+
+  # 3. Geomechanical analysis
+  - name: overburden
+    type: calculate_overburden_stress
+    params:
+      depth: "${load_well.output.DEPTH}"
+      rhob: "${load_well.output.RHOB}"
+
+  - name: hydrostatic
+    type: calculate_hydrostatic_pressure
+    params:
+      depth: "${load_well.output.DEPTH}"
+
+  # 4. Stratigraphic analysis
+  - name: preprocess_gr
+    type: preprocess_log
+    params:
+      log_values: "${load_well.output.GR}"
+      median_window: 5
+      detrend_window: 100
+
+  - name: detect_boundaries
+    type: detect_bayesian_online
+    params:
+      log_values: "${preprocess_gr.output}"
+      expected_segment_length: 50.0
+      threshold: 0.5
+
+  # 5. Visualization
+  - name: final_plot
+    type: create_strip_chart
+    params:
+      df: "${load_well.output}"
+      depth_col: "DEPTH"
+      log_cols: ["GR", "RT", "RHOB"]
+      title: "Complete Analysis - All Results"
+
+options:
+  stop_on_error: false  # Continue even if some steps fail
+  output_dir: "./complete_analysis"
+

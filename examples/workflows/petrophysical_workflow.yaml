@@ -1,0 +1,86 @@
+# Complete Petrophysical Analysis Workflow
+# This workflow demonstrates config-driven petrophysical analysis
+
+# Optional: Path to config file (relative to workflow file or absolute)
+# config: "geosuite/config/default_config.yaml"
+
+# Workflow metadata
+name: "Petrophysical Analysis"
+description: "Complete petrophysical workflow: load data, calculate properties, create plots"
+
+# Workflow steps (executed in order)
+steps:
+  # Step 1: Load data
+  - name: load_data
+    type: load_demo_data
+    description: "Load demo well log data"
+    params:
+      # No parameters needed for demo data
+
+  # Step 2: Calculate porosity from density
+  - name: calculate_porosity
+    type: calculate_porosity
+    description: "Calculate porosity from density log using config parameters"
+    params:
+      rhob: "${load_data.output.RHOB}"  # Reference DataFrame column
+      # rho_matrix and rho_fluid will be read from config if not specified
+      # Can override: rho_matrix: 2.65
+
+  # Step 3: Calculate water saturation (Archie equation - parameters from config)
+  - name: calculate_saturation
+    type: calculate_water_saturation
+    description: "Calculate water saturation using Archie equation (parameters from config)"
+    params:
+      phi: "${calculate_porosity.output}"  # Use porosity array from previous step
+      rt: "${load_data.output.RT}"  # Reference DataFrame column
+      # rw, m, n, a will be read from config (petro.archie.*)
+      # Can override config: rw: 0.05
+
+  # Step 4: Add calculated properties to DataFrame
+  - name: add_properties
+    type: add_to_dataframe
+    description: "Add calculated properties back to main DataFrame"
+    params:
+      df: "${load_data.output}"
+      columns:
+        POROSITY: "${calculate_porosity.output}"
+        SW: "${calculate_saturation.output}"
+
+  # Step 5: Create Pickett plot
+  - name: pickett_plot
+    type: pickett_plot
+    description: "Create Pickett plot for reservoir quality analysis"
+    params:
+      df: "${add_properties.output}"
+      porosity_col: "POROSITY"
+      resistivity_col: "RT"
+      # Archie parameters read from config (petro.archie.*)
+      title: "Pickett Plot - Config-Driven Workflow"
+
+  # Step 6: Create Buckles plot
+  - name: buckles_plot
+    type: buckles_plot
+    description: "Create Buckles plot for pay zone identification"
+    params:
+      df: "${add_properties.output}"
+      porosity_col: "POROSITY"
+      sw_col: "SW"
+      cutoff: 0.04
+      title: "Buckles Plot - Config-Driven Workflow"
+
+  # Step 7: Create strip chart visualization
+  - name: strip_chart
+    type: create_strip_chart
+    description: "Create professional well log strip chart"
+    params:
+      df: "${add_properties.output}"
+      depth_col: "DEPTH"
+      log_cols: ["GR", "RT", "RHOB", "POROSITY", "SW"]
+      title: "Complete Petrophysical Analysis - Config-Driven Workflow"
+
+# Workflow options
+options:
+  stop_on_error: true  # Stop execution if any step fails
+  save_results: true   # Save step results to output directory
+  output_dir: "./workflow_results"  # Where to save results
+

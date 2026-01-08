@@ -14,6 +14,7 @@ GeoSuite is a professional Python library for petroleum engineering and geoscien
    installation
    quickstart
    examples
+   comparison_cases
 
 .. toctree::
    :maxdepth: 2

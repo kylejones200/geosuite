@@ -84,6 +84,21 @@ from geosuite import ml
 from geosuite import stratigraphy
 from geosuite import data
 from geosuite import plotting
+from geosuite import config
+
+try:
+    from geosuite import analysis
+    _has_analysis = True
+except ImportError:
+    _has_analysis = False
+    analysis = None
+
+try:
+    from geosuite import forecasting
+    _has_forecasting = True
+except ImportError:
+    _has_forecasting = False
+    forecasting = None
 
 # Conditional imports for optional dependencies
 try:
@@ -145,6 +160,19 @@ from geosuite.stratigraphy import (
     find_consensus,
 )
 
+from geosuite.workflows import (
+    run_workflow,
+    load_workflow,
+    WorkflowOrchestrator,
+)
+
+from geosuite.config import (
+    ConfigManager,
+    load_config,
+    get_config,
+    set_config,
+)
+
 __all__ = [
     # Version info
     "__version__",
@@ -162,6 +190,9 @@ __all__ = [
     "plotting",
     "geospatial",
     "modeling",
+    "analysis",
+    "workflows",
+    "config",
     
     # Data loaders (most commonly used)
     "load_demo_well_logs",
@@ -176,6 +207,17 @@ __all__ = [
     
     # Geomechanics (most commonly used)
     "calculate_overburden_stress",
+    
+    # Workflows
+    "run_workflow",
+    "load_workflow",
+    "WorkflowOrchestrator",
+    
+    # Config
+    "ConfigManager",
+    "load_config",
+    "get_config",
+    "set_config",,
     "calculate_hydrostatic_pressure",
     "calculate_effective_stress",
     

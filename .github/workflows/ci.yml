@@ -38,6 +38,12 @@ jobs:
         black --check geosuite/ tests/
       continue-on-error: true
     
+    - name: Type check with mypy
+      run: |
+        pip install mypy
+        mypy geosuite/ --config-file mypy.ini
+      continue-on-error: true
+    
     - name: Run tests
       run: |
         pytest tests/ -v --tb=short --cov=geosuite --cov-report=xml --cov-report=term

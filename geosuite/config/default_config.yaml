@@ -1,0 +1,153 @@
+# Default GeoSuite Configuration
+# This file provides default configuration values for GeoSuite modules
+
+# Petrophysics configuration
+petro:
+  archie:
+    a: 1.0  # Archie equation coefficient
+    m: 2.0  # Cementation exponent
+    n: 2.0  # Saturation exponent
+    rw: 0.05  # Formation water resistivity (ohm-m)
+  
+  density:
+    rho_matrix: 2.65  # Matrix density for porosity calculation (g/cc)
+    rho_fluid: 1.0    # Fluid density for porosity calculation (g/cc)
+  
+  shaly_sand:
+    simandoux:
+      a: 1.0
+      m: 2.0
+      n: 2.0
+    indonesia:
+      a: 1.0
+      m: 2.0
+      n: 2.0
+    waxman_smits:
+      a: 1.0
+      m: 2.0
+      n: 2.0
+      b: 0.046  # Cation exchange capacity coefficient
+  
+  permeability:
+    timur:
+      coefficient: 0.136
+      porosity_exponent: 4.4
+      saturation_exponent: 2.0
+    kozeny_carman:
+      coefficient: 0.2
+      tortuosity: 2.0
+    wyllie_rose:
+      coefficient: 0.625
+      porosity_exponent: 6.0
+      saturation_exponent: 2.0
+
+# Geomechanics configuration
+geomech:
+  default:
+    rho_water: 1.03  # Water density (g/cc)
+    g: 9.81  # Gravitational acceleration (m/s^2)
+    poisson: 0.25  # Poisson's ratio
+    ucs: 50.0  # Unconfined compressive strength (MPa)
+    tensile_strength: 5.0  # Tensile strength (MPa)
+  
+  pore_pressure:
+    eaton:
+      exponent: 3.0
+    bowers:
+      u_max: 0.8
+      u0: 0.0
+  
+  stress:
+    stress_ratio: 0.6  # Default Shmin/Sv ratio
+    friction_coefficient: 0.6
+
+# Machine Learning configuration
+ml:
+  default:
+    random_state: 42
+    test_size: 0.2
+    n_jobs: -1
+  
+  classifiers:
+    svm:
+      kernel: "rbf"
+      C: 10.0
+      gamma: "scale"
+      probability: true
+    random_forest:
+      n_estimators: 300
+      max_depth: None
+      min_samples_split: 2
+      min_samples_leaf: 1
+  
+  regression:
+    random_forest:
+      n_estimators: 300
+      max_depth: None
+    gradient_boosting:
+      n_estimators: 200
+      max_depth: 5
+      learning_rate: 0.1
+  
+  clustering:
+    kmeans:
+      n_clusters: 5
+      n_init: 10
+    dbscan:
+      eps: 0.5
+      min_samples: 5
+
+# Stratigraphy configuration
+stratigraphy:
+  preprocessing:
+    median_filter_size: 5
+    detrend: true
+  
+  changepoint:
+    pelt:
+      min_size: 2
+      penalty: 1.0
+    bayesian:
+      hazard: 1.0
+      threshold: 0.5
+
+# I/O configuration
+io:
+  default:
+    encoding: "utf-8"
+    na_values: ["-999.25", "-999", "NULL", "null"]
+  
+  las:
+    mnemonic_case: "upper"
+    replace_spaces: true
+  
+  segy:
+    endian: "little"
+    trace_header_format: "standard"
+
+# Plotting configuration
+plotting:
+  default:
+    style: "signalplot"
+    figure_size: [10, 6]
+    dpi: 100
+  
+  strip_chart:
+    track_width: 1.0
+    track_spacing: 0.1
+  
+  crossplot:
+    marker_size: 20
+    alpha: 0.6
+
+# Uncertainty quantification
+uncertainty:
+  default:
+    method: "monte_carlo"
+    n_samples: 10000
+    confidence_level: 0.95
+  
+  error_propagation:
+    method: "first_order"  # or "monte_carlo"
+    n_samples: 10000
+

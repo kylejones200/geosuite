@@ -45,12 +45,41 @@ dependencies = [
     "cloudpickle>=2.2.0",
     "numba>=0.58.0",
     "pyarrow>=14.0.0",
+    "pyyaml>=6.0",
+]
+visualization = [
+    "plotly>=5.0.0",  # For interactive 3D visualization
+    "folium>=0.14.0",  # For interactive maps
+    "geopandas>=0.14.0",  # For static geospatial maps
+    "shapely>=2.0.0",  # Required by geopandas
+]
+analysis = [
+    "ts2net>=0.7.0",  # Time series to network analysis
+]
+data_formats = [
+    "resqpy>=0.7.0",  # RESQML format support
+    "dlisio>=0.7.0",  # DLIS format support
+    "pyproj>=3.6.0",  # CRS handling
+    "requests>=2.31.0",  # Remote data access
+    "websocket-client>=1.6.0",  # WITSML streaming
+]
+forecasting = [
+    "pymc>=5.0.0",  # Bayesian decline analysis
+    "arviz>=0.15.0",  # Bayesian diagnostics and visualization
 ]
 
 [project.optional-dependencies]
 ml = [
     "mlflow>=2.8.0",
     "mlflow[extras]>=2.8.0",
+    "shap>=0.44.0",  # For model interpretability
+]
+deep = [
+    "torch>=2.0.0",  # PyTorch for deep learning
+    "tensorflow>=2.13.0",  # TensorFlow as alternative backend
+]
+optimization = [
+    "optuna>=3.0.0",  # Hyperparameter optimization
 ]
 geospatial = [
     "apache-sedona==1.5.1",
@@ -107,11 +136,12 @@ Repository = "https://github.com/kylejones200/geosuite"
 Issues = "https://github.com/kylejones200/geosuite/issues"
 
 [tool.setuptools]
-packages = ["geosuite", "geosuite.io", "geosuite.petro", "geosuite.geomech", "geosuite.ml", "geosuite.stratigraphy", "geosuite.imaging", "geosuite.geospatial", "geosuite.plotting", "geosuite.data", "geosuite.modeling", "geosuite.base", "geosuite.cli"]
+packages = ["geosuite", "geosuite.io", "geosuite.petro", "geosuite.geomech", "geosuite.ml", "geosuite.stratigraphy", "geosuite.imaging", "geosuite.geospatial", "geosuite.plotting", "geosuite.data", "geosuite.modeling", "geosuite.base", "geosuite.cli", "geosuite.config", "geosuite.analysis", "geosuite.forecasting"]
 
 [project.scripts]
 geosuite-batch = "geosuite.cli.batch_process:main"
 geosuite-analyze = "geosuite.cli.analyze:main"
+geosuite-workflow = "geosuite.cli.workflow:main"
 
 [tool.setuptools.package-data]
 geosuite = ["data/files/*.parquet", "data/files/KSdata/*.parquet"]
@@ -121,7 +151,14 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short --cov=geosuite --cov-report=term-missing --cov-report=html"
+addopts = "-v --tb=short --cov=geosuite --cov-report=term-missing --cov-report=html --strict-markers"
+markers = [
+    "unit: Unit tests for individual functions and classes",
+    "integration: Integration tests for components working together",
+    "slow: Tests that take a long time to run",
+    "requires_mlflow: Tests that require MLflow to be configured",
+    "requires_databricks: Tests that require Databricks connection",
+]
 
 [tool.coverage.run]
 source = ["geosuite"]

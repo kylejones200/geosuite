@@ -145,7 +145,8 @@ def plot_feature_importance(
 def calculate_shap_values(
     model: Any,
     X: Union[np.ndarray, pd.DataFrame],
-    max_samples: Optional[int] = 100
+    max_samples: Optional[int] = 100,
+    feature_names: Optional[List[str]] = None
 ) -> Optional[np.ndarray]:
     """
     Calculate SHAP values for model interpretability.

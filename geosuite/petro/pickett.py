@@ -8,8 +8,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import signalplot
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TYPE_CHECKING
 from matplotlib.figure import Figure
+
+if TYPE_CHECKING:
+    from ..config import ConfigManager
+else:
+    ConfigManager = None
 
 # Apply signalplot style globally for this module
 signalplot.apply()
@@ -19,15 +24,16 @@ def pickett_plot(
     df: pd.DataFrame,
     porosity_col: str = 'NPHI',
     resistivity_col: str = 'RT',
-    m: float = 2.0,
-    n: float = 2.0,
-    a: float = 1.0,
-    rw: float = 0.05,
+    m: Optional[float] = None,
+    n: Optional[float] = None,
+    a: Optional[float] = None,
+    rw: Optional[float] = None,
     color_by: Optional[str] = None,
     title: str = 'Pickett Plot',
     show_water_line: bool = True,
     show_sw_lines: bool = True,
-    figsize: Tuple[float, float] = (8, 6)
+    figsize: Tuple[float, float] = (8, 6),
+    config: Optional['ConfigManager'] = None
 ) -> Figure:
     """
     Create a Pickett plot for porosity and resistivity analysis.
@@ -52,6 +58,20 @@ def pickett_plot(
     Returns:
         Matplotlib Figure object
     """
+    # Load from config if not provided
+    if m is None:
+        from ..config import get_config
+        m = config.get("petro.archie.m", 2.0) if config else get_config("petro.archie.m", 2.0)
+    if n is None:
+        from ..config import get_config
+        n = config.get("petro.archie.n", 2.0) if config else get_config("petro.archie.n", 2.0)
+    if a is None:
+        from ..config import get_config
+        a = config.get("petro.archie.a", 1.0) if config else get_config("petro.archie.a", 1.0)
+    if rw is None:
+        from ..config import get_config
+        rw = config.get("petro.archie.rw", 0.05) if config else get_config("petro.archie.rw", 0.05)
+    
     # Remove invalid data
     df_plot = df[[porosity_col, resistivity_col]].dropna()
     df_plot = df_plot[(df_plot[porosity_col] > 0) & (df_plot[resistivity_col] > 0)]

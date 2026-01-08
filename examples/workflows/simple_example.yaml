@@ -1,0 +1,24 @@
+# Simple Example Workflow
+# Demonstrates basic config-driven workflow
+
+name: "Simple Petrophysical Example"
+description: "Minimal example showing config-driven calculations"
+
+steps:
+  # Load demo data
+  - name: data
+    type: load_demo_data
+    
+  # Calculate porosity (will use config for rho_matrix, rho_fluid)
+  - name: porosity
+    type: calculate_porosity
+    params:
+      rhob: "${data.output.RHOB}"
+
+  # Calculate water saturation (will use config for Archie parameters)
+  - name: saturation
+    type: calculate_water_saturation
+    params:
+      phi: "${porosity.output}"
+      rt: "${data.output.RT}"
+

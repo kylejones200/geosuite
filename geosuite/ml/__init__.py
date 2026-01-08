@@ -21,6 +21,27 @@ from .clustering import (
     find_optimal_clusters,
 )
 
+try:
+    from .deep_models import DeepFaciesClassifier, DeepPropertyPredictor
+    _has_deep = True
+except ImportError:
+    _has_deep = False
+    DeepFaciesClassifier = None
+    DeepPropertyPredictor = None
+
+try:
+    from .hyperparameter_optimization import (
+        SubsurfaceHyperparameterOptimizer,
+        optimize_facies_classifier,
+        optimize_property_predictor,
+    )
+    _has_optuna = True
+except ImportError:
+    _has_optuna = False
+    SubsurfaceHyperparameterOptimizer = None
+    optimize_facies_classifier = None
+    optimize_property_predictor = None
+
 __all__ = [
     "train_and_predict",
     "display_cm",
@@ -48,3 +69,15 @@ try:
     __all__.extend(["MLflowFaciesClassifier", "train_facies_classifier"])
 except ImportError:
     pass
+
+# Make deep models optional
+if _has_deep:
+    __all__.extend(["DeepFaciesClassifier", "DeepPropertyPredictor"])
+
+# Make hyperparameter optimization optional
+if _has_optuna:
+    __all__.extend([
+        "SubsurfaceHyperparameterOptimizer",
+        "optimize_facies_classifier",
+        "optimize_property_predictor",
+    ])

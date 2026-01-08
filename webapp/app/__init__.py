@@ -14,6 +14,13 @@ from .blueprints.data import bp as data_bp
 from .blueprints.ml import bp as ml_bp
 from .blueprints.wells import bp as wells_bp
 
+try:
+    from .blueprints.workflows import bp as workflows_bp
+    _has_workflows = True
+except ImportError:
+    _has_workflows = False
+    workflows_bp = None
+
 
 def create_app():
     """Create and configure Flask application.
@@ -45,5 +52,18 @@ def create_app():
     app.register_blueprint(data_bp, url_prefix="/data")
     app.register_blueprint(ml_bp, url_prefix="/ml")
     app.register_blueprint(wells_bp, url_prefix="/wells")
+    
+    # Register workflows blueprint if available
+    if _has_workflows and workflows_bp:
+        app.register_blueprint(workflows_bp, url_prefix="/workflows")
+    
+    # Register REST API and Swagger if available
+    try:
+        from .blueprints.api.rest_api import bp as rest_api_bp
+        from .blueprints.api.swagger import bp as swagger_bp
+        app.register_blueprint(rest_api_bp)
+        app.register_blueprint(swagger_bp)
+    except ImportError:
+        pass
     
     return app

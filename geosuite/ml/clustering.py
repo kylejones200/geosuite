@@ -12,10 +12,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
 from sklearn.pipeline import Pipeline
 
+from ..base.estimators import BaseEstimator
+
 logger = logging.getLogger(__name__)
 
 
-class FaciesClusterer:
+class FaciesClusterer(BaseEstimator):
     """
     Clustering pipeline for facies identification from well log data.
     
@@ -83,16 +85,22 @@ class FaciesClusterer:
         
         self.model = model_configs[self.method]()
     
-    def fit(self, X: Union[np.ndarray, pd.DataFrame]) -> 'FaciesClusterer':
+    def fit(
+        self,
+        X: Union[np.ndarray, pd.DataFrame],
+        y: Optional[Union[np.ndarray, pd.Series]] = None
+    ) -> 'FaciesClusterer':
         """
         Fit the clustering model to data.
         
         Args:
             X: Feature array or DataFrame
+            y: Ignored (clustering is unsupervised), optional
             
         Returns:
             self
         """
+        # For clustering, y is not used but we accept it for BaseEstimator compatibility
         if isinstance(X, pd.DataFrame):
             self.feature_names = list(X.columns)
             X_array = X.values
