@@ -207,6 +207,8 @@ __all__ = [
     
     # Geomechanics (most commonly used)
     "calculate_overburden_stress",
+    "calculate_hydrostatic_pressure",
+    "calculate_effective_stress",
     
     # Workflows
     "run_workflow",
@@ -217,9 +219,7 @@ __all__ = [
     "ConfigManager",
     "load_config",
     "get_config",
-    "set_config",,
-    "calculate_hydrostatic_pressure",
-    "calculate_effective_stress",
+    "set_config",
     
     # Machine Learning (most commonly used)
     "train_facies_classifier",
