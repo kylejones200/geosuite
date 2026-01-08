@@ -17,6 +17,8 @@ try:
     PYPROJ_AVAILABLE = True
 except ImportError:
     PYPROJ_AVAILABLE = False
+    CRS = None  # For type hints when pyproj is not available
+    Transformer = None
     logger.warning(
         "pyproj not available. CRS support requires pyproj. "
         "Install with: pip install pyproj"
@@ -35,7 +37,7 @@ class CRSHandler:
         >>> x, y = handler.transform(utm_x, utm_y, 'EPSG:32633')
     """
     
-    def __init__(self, crs: Optional[Union[str, int, CRS]] = None):
+    def __init__(self, crs: Optional[Union[str, int, "CRS"]] = None):
         """
         Initialize CRS handler.
         
@@ -58,7 +60,7 @@ class CRSHandler:
         if crs is not None:
             self.set_crs(crs)
     
-    def set_crs(self, crs: Union[str, int, CRS]) -> None:
+    def set_crs(self, crs: Union[str, int, "CRS"]) -> None:
         """
         Set coordinate reference system.
         
@@ -80,7 +82,7 @@ class CRSHandler:
         self.crs = CRS.from_string(crs) if isinstance(crs, str) else crs
         logger.info(f"Set CRS: {self.crs}")
     
-    def get_crs(self) -> Optional[CRS]:
+    def get_crs(self) -> Optional["CRS"]:
         """
         Get current CRS.
         
@@ -112,8 +114,8 @@ class CRSHandler:
         self,
         x: Union[float, np.ndarray, pd.Series],
         y: Union[float, np.ndarray, pd.Series],
-        target_crs: Union[str, int, CRS],
-        source_crs: Optional[Union[str, int, CRS]] = None
+        target_crs: Union[str, int, "CRS"],
+        source_crs: Optional[Union[str, int, "CRS"]] = None
     ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
         """
         Transform coordinates from source CRS to target CRS.
@@ -220,7 +222,7 @@ class CRSHandler:
         return True
 
 
-def standardize_crs(crs: Union[str, int, CRS]) -> CRS:
+def standardize_crs(crs: Union[str, int, "CRS"]) -> "CRS":
     """
     Standardize CRS to pyproj.CRS object.
     
