@@ -48,7 +48,7 @@
 
 
 **⬜ Remaining:**
-- ⬜ Clustering pipelines (facies grouping)
+- ✅ Clustering pipelines (facies grouping) - KMeans, DBSCAN, Hierarchical with optimal cluster finding
 - ⬜ Deep models with explainability
 - ⬜ Hyperparameter optimization engines (beyond Optuna, subsurface-specific)
 

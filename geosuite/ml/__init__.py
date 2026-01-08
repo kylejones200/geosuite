@@ -15,6 +15,11 @@ from .interpretability import (
     plot_shap_summary,
     partial_dependence_plot,
 )
+from .clustering import (
+    FaciesClusterer,
+    cluster_facies,
+    find_optimal_clusters,
+)
 
 __all__ = [
     "train_and_predict",
@@ -32,6 +37,9 @@ __all__ = [
     "calculate_shap_values",
     "plot_shap_summary",
     "partial_dependence_plot",
+    "FaciesClusterer",
+    "cluster_facies",
+    "find_optimal_clusters",
 ]
 
 # Make MLflow-enhanced classifiers optional
