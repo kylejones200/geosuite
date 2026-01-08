@@ -94,10 +94,10 @@ class TestOverburdenStressAccuracy:
 class TestBayesianChangePointAccuracy:
     """Test accuracy of Numba-optimized Bayesian change-point detection."""
     
-    def test_probabilities_in_valid_range(self):
+    def test_probability_validity(self):
         """All change-point probabilities must be in [0, 1]."""
         np.random.seed(42)
-        log_values = np.random.normal(50, 2, 500)  # Uniform signal
+        log_values = np.random.normal(50, 2, 500)
         
         cp_indices, cp_probs = detect_bayesian_online(
             log_values,
@@ -105,7 +105,6 @@ class TestBayesianChangePointAccuracy:
             threshold=0.5
         )
         
-        # Probabilities must be valid
         assert np.all(cp_probs >= 0.0), "Probabilities below 0"
         assert np.all(cp_probs <= 1.0), "Probabilities above 1"
         assert not np.any(np.isnan(cp_probs)), "NaN in probabilities"
@@ -113,11 +112,10 @@ class TestBayesianChangePointAccuracy:
     
     def test_detects_abrupt_change(self):
         """Should detect obvious step change."""
-        # Create signal with clear step
         signal = np.concatenate([
-            np.ones(200) * 50,    # First segment
-            np.ones(200) * 80,    # Step change
-            np.ones(200) * 50,    # Back to original
+            np.ones(200) * 50,
+            np.ones(200) * 80,
+            np.ones(200) * 50,
         ])
         
         cp_indices, cp_probs = detect_bayesian_online(
@@ -126,27 +124,10 @@ class TestBayesianChangePointAccuracy:
             threshold=0.5
         )
         
-        # Should detect at least one change point near the transitions
         assert len(cp_indices) >= 1, "Failed to detect obvious step change"
-        
-        # At least one CP should be near index 200 or 400
         distances_to_200 = np.abs(cp_indices - 200)
         distances_to_400 = np.abs(cp_indices - 400)
-        
-        assert (np.min(distances_to_200) < 50 or 
-                np.min(distances_to_400) < 50), "CP not near actual boundaries"
-    
-    def test_probability_range(self):
-        """Change-point probabilities must be in [0, 1]."""
-        np.random.seed(42)
-        log_values = np.random.normal(60, 10, 500)
-        
-        cp_indices, cp_probs = detect_bayesian_online(log_values)
-        
-        assert np.all(cp_probs >= 0.0), "Probabilities below 0"
-        assert np.all(cp_probs <= 1.0), "Probabilities above 1"
-        assert not np.any(np.isnan(cp_probs)), "NaN in probabilities"
-        assert not np.any(np.isinf(cp_probs)), "Inf in probabilities"
+        assert (np.min(distances_to_200) < 50 or np.min(distances_to_400) < 50)
     
     def test_threshold_effect(self):
         """Higher threshold should yield fewer detections."""

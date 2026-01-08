@@ -14,6 +14,9 @@ GeoSuite provides tools for petroleum engineering and geoscience applications:
     - ``geospatial``: Geospatial operations with Apache Sedona
     - ``plotting``: Visualization utilities (strip charts, crossplots)
     - ``data``: Demo datasets and data loaders
+    - ``modeling``: Spatial reservoir modeling with pygeomodeling integration (optional)
+    - ``base``: Base classes for consistent API patterns
+    - ``utils``: Utility functions (Numba helpers, uncertainty quantification)
 
 **Quick Start:**
 
@@ -97,6 +100,13 @@ except ImportError:
     _has_geospatial = False
     geospatial = None
 
+try:
+    from geosuite import modeling
+    _has_modeling = True
+except ImportError:
+    _has_modeling = False
+    modeling = None
+
 # Export commonly used functions at top level for convenience
 from geosuite.data import (
     load_demo_well_logs,
@@ -151,6 +161,7 @@ __all__ = [
     "data",
     "plotting",
     "geospatial",
+    "modeling",
     
     # Data loaders (most commonly used)
     "load_demo_well_logs",
@@ -206,6 +217,7 @@ def get_info():
             "data": True,
             "plotting": True,
             "geospatial": _has_geospatial,
+            "modeling": _has_modeling,
         }
     }
     return info

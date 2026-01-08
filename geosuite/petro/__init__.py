@@ -17,6 +17,16 @@ from .calculations import (
 from .pickett import pickett_plot
 from .buckles import buckles_plot
 from .lithology import neutron_density_crossplot
+from .shaly_sand import (
+    calculate_water_saturation_simandoux,
+    calculate_water_saturation_indonesia,
+    calculate_water_saturation_waxman_smits,
+)
+from .rock_physics import (
+    gassmann_fluid_substitution,
+    calculate_fluid_bulk_modulus,
+    calculate_density_from_velocity,
+)
 
 __all__ = [
     # Archie module (existing)
@@ -34,4 +44,14 @@ __all__ = [
     "pickett_plot",
     "buckles_plot",
     "neutron_density_crossplot",
+    
+    # Shaly sand models
+    "calculate_water_saturation_simandoux",
+    "calculate_water_saturation_indonesia",
+    "calculate_water_saturation_waxman_smits",
+    
+    # Rock physics
+    "gassmann_fluid_substitution",
+    "calculate_fluid_bulk_modulus",
+    "calculate_density_from_velocity",
 ]

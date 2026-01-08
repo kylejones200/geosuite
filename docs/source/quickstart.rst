@@ -250,6 +250,6 @@ Getting Help
 ------------
 
 * Documentation: https://geosuite.readthedocs.io
-* GitHub Issues: https://github.com/yourusername/geosuite/issues
+* GitHub Issues: https://github.com/kylejones200/geosuite/issues
 * Examples: See ``examples/`` directory in the repository
 

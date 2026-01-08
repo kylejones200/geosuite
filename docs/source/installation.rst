@@ -127,7 +127,7 @@ To install from source:
 
 .. code-block:: bash
 
-   git clone https://github.com/yourusername/geosuite.git
+   git clone https://github.com/kylejones200/geosuite.git
    cd geosuite
    pip install -e .
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geosuite"
-version = "0.1.3"
+version = "0.1.2"
 description = "A Python library for geoscience workflows: geomechanics, petrophysics, machine learning, and data I/O"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -33,8 +33,8 @@ classifiers = [
 ]
 dependencies = [
     "pandas>=2.0",
-    "numpy>=1.24,<2.0",
-    "scipy>=1.10",
+    "numpy>=2.0.0",
+    "scipy>=1.13.0",
     "scikit-learn>=1.3",
     "matplotlib>=3.7",
     "signalplot>=0.1.0",
@@ -76,6 +76,10 @@ webapp = [
 imaging = [
     "scikit-image>=0.21",
 ]
+modeling = [
+    "pygeomodeling>=0.3.0",
+    "pykrige>=1.6.0",  # For Kriging support
+]
 dev = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
@@ -93,7 +97,7 @@ dev = [
     "myst-parser>=2.0.0",
 ]
 all = [
-    "geosuite[ml,geospatial,data,webapp,imaging,dev]"
+    "geosuite[ml,geospatial,data,webapp,imaging,modeling,dev]"
 ]
 
 [project.urls]
@@ -103,7 +107,11 @@ Repository = "https://github.com/kylejones200/geosuite"
 Issues = "https://github.com/kylejones200/geosuite/issues"
 
 [tool.setuptools]
-packages = {find = {exclude = ["tests*", "examples*", "webapp*", "docs*", "benchmarks*"]}}
+packages = ["geosuite", "geosuite.io", "geosuite.petro", "geosuite.geomech", "geosuite.ml", "geosuite.stratigraphy", "geosuite.imaging", "geosuite.geospatial", "geosuite.plotting", "geosuite.data", "geosuite.modeling", "geosuite.base", "geosuite.cli"]
+
+[project.scripts]
+geosuite-batch = "geosuite.cli.batch_process:main"
+geosuite-analyze = "geosuite.cli.analyze:main"
 
 [tool.setuptools.package-data]
 geosuite = ["data/files/*.parquet", "data/files/KSdata/*.parquet"]
@@ -113,7 +121,28 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=geosuite --cov-report=term-missing --cov-report=html"
+
+[tool.coverage.run]
+source = ["geosuite"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+fail_under = 70
 
 [tool.black]
 line-length = 100

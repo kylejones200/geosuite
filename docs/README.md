@@ -237,6 +237,6 @@ When adding or updating documentation:
 
 For questions or issues with the documentation:
 
-- GitHub Issues: https://github.com/yourusername/geosuite/issues
+- GitHub Issues: https://github.com/kylejones200/geosuite/issues
 - Documentation: https://geosuite.readthedocs.io
 

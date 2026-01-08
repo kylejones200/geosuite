@@ -145,5 +145,5 @@ Contributing
 
 See CONTRIBUTING.rst for development guidelines.
 
-Issues and feature requests: https://github.com/yourusername/geosuite/issues
+Issues and feature requests: https://github.com/kylejones200/geosuite/issues
 

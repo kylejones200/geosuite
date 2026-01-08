@@ -7,7 +7,7 @@ import pandas as pd
 import sys
 import os
 
-# Add geosuite to path
+# Add geosuite_lib to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 
@@ -43,32 +43,25 @@ def sample_well_log_data():
 def sample_facies_data():
     """Sample facies classification data for testing."""
     np.random.seed(42)
-    n_samples = 200  # Increase sample size to ensure enough per class
+    n_samples = 100
     
     data = pd.DataFrame({
         'DEPTH': np.arange(1000, 1000 + n_samples),
-        'GR': np.random.normal(75, 30, n_samples),  # Increase variance
-        'NPHI': np.random.normal(0.15, 0.08, n_samples),  # Increase variance
+        'GR': np.random.normal(75, 25, n_samples),
+        'NPHI': np.random.normal(0.15, 0.05, n_samples),
         'RHOB': np.random.normal(2.5, 0.2, n_samples),
         'PE': np.random.normal(3.0, 0.5, n_samples)
     })
     
-    # Add facies labels with broader conditions to ensure multiple samples per class
+    # Add facies labels
     conditions = [
-        (data['GR'] < 55),  # More liberal condition for Clean_Sand
-        (data['GR'] >= 55) & (data['GR'] < 75),
-        (data['GR'] >= 75) & (data['GR'] < 95),
-        data['GR'] >= 95
+        (data['GR'] < 50) & (data['NPHI'] < 0.1),
+        (data['GR'] < 50) & (data['NPHI'] >= 0.1),
+        (data['GR'] >= 50) & (data['GR'] < 100),
+        data['GR'] >= 100
     ]
     choices = ['Clean_Sand', 'Shaly_Sand', 'Siltstone', 'Shale']
-    data['Facies'] = np.select(conditions, choices, default='Siltstone')
-    
-    # Ensure we have at least 10 samples per class for proper stratification
-    for facies in choices:
-        if (data['Facies'] == facies).sum() < 10:
-            # Add more samples for this facies
-            indices = data.sample(10, random_state=42).index
-            data.loc[indices, 'Facies'] = facies
+    data['Facies'] = np.select(conditions, choices, default='Unknown')
     
     return data
 
@@ -76,30 +69,12 @@ def sample_facies_data():
 @pytest.fixture
 def flask_app():
     """Create Flask app instance for testing."""
-    # Add webapp directory to path
-    webapp_path = os.path.join(os.path.dirname(__file__), '..', 'webapp')
-    if webapp_path not in sys.path:
-        sys.path.insert(0, webapp_path)
+    from app import create_app
     
-    try:
-        from app import create_app
-        
-        app = create_app()
-        app.config['TESTING'] = True
-        app.config['TRAP_HTTP_EXCEPTIONS'] = False  # Don't raise exceptions
-        
-        # Register error handler for template errors
-        @app.errorhandler(500)
-        def handle_500(error):
-            return "Internal Server Error", 500
-            
-        @app.errorhandler(404)
-        def handle_404(error):
-            return "Not Found", 404
-        
-        return app
-    except ImportError as e:
-        pytest.skip(f"Flask app not available for testing: {e}")
+    app = create_app()
+    app.config['TESTING'] = True
+    
+    return app
 
 
 @pytest.fixture

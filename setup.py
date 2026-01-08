@@ -15,7 +15,7 @@ def read_file(filename):
 # Core dependencies
 INSTALL_REQUIRES = [
     "pandas>=2.0",
-    "numpy>=1.24,<2.0",
+    "numpy>=2.0.0",
     "scikit-learn>=1.3",
     "lasio>=0.30",
     "segyio>=1.9",
@@ -23,7 +23,7 @@ INSTALL_REQUIRES = [
     "seaborn>=0.12",
     "joblib>=1.3.0",
     "cloudpickle>=2.2.0",
-    "scipy>=1.10",
+    "scipy>=1.13.0",
     "ruptures>=1.1",
     "pyarrow>=14.0.0",
 ]

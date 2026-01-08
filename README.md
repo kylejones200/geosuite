@@ -24,6 +24,8 @@ Transform raw well data into actionable insights. GeoSuite provides petroleum en
 
 **Import industry-standard formats**. Read LAS, SEG-Y, PPDM, and WITSML files without custom parsers. Export results to CSV, GeoJSON, or your preferred format.
 
+**Model reservoir properties spatially**. Integrate with [pygeomodeling](https://github.com/kylejones200/pygeomodeling) for 3D spatial interpolation of permeability, porosity, and other properties using Gaussian Process Regression and Kriging.
+
 ---
 
 ## Comprehensive Capabilities
@@ -40,14 +42,23 @@ GeoSuite provides everything you need for professional subsurface analysis:
 
 - **Production Analysis**: Fit decline curve models to production history, forecast ultimate recovery, evaluate project economics, and generate probabilistic type curves for reserves estimation.
 
+- **Spatial Reservoir Modeling**: Convert well log data to 3D spatial coordinates, model reservoir properties using Gaussian Processes, and interpolate properties onto 3D grids. Integrates with [pygeomodeling](https://github.com/kylejones200/pygeomodeling) for advanced spatial modeling.
+
 ---
 
 ## Getting Started
 
 ### Installation
 
+**Basic Installation:**
 ```bash
 pip install geosuite
+```
+
+**With Spatial Modeling (pygeomodeling integration):**
+```bash
+pip install geosuite[modeling]
+```
 ```
 
 ### Your First Analysis
@@ -113,6 +124,38 @@ results = train_facies_classifier(
 )
 
 print(f"Validation Accuracy: {results['test_accuracy']:.1%}")
+```
+
+**Model reservoir properties spatially** (requires `pip install geosuite[modeling]`):
+
+```python
+from geosuite.io import load_las_file
+from geosuite.petro import calculate_porosity_from_density
+from geosuite.modeling import (
+    WellLogToSpatial,
+    SpatialPropertyModeler,
+    SpatialDataConverter
+)
+
+# Load well log and calculate properties
+las = load_las_file('well.las')
+df = las.df()
+df['POROSITY'] = calculate_porosity_from_density(df['RHOB'])
+df['PERMEABILITY'] = 0.136 * (df['POROSITY'] ** 4.4)
+
+# Convert to spatial format (well at x=1000, y=2000)
+converter = WellLogToSpatial()
+spatial = converter.convert(df, x=1000, y=2000, z='DEPTH')
+
+# Model permeability spatially using Gaussian Process
+modeler = SpatialPropertyModeler(model_type='gpr')
+modeler.fit_property(spatial, 'PERMEABILITY')
+
+# Predict on 3D grid
+grid = SpatialDataConverter.create_prediction_grid(
+    (500, 1500), (1500, 2500), (0, 3000), nx=50, ny=50, nz=20
+)
+predictions, uncertainty = modeler.predict(grid, return_std=True)
 ```
 
 ---

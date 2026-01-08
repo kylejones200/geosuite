@@ -1,0 +1,53 @@
+# Cursor Rules
+
+## Defaults
+Write Python code. Use clear names. Keep functions small. Keep modules focused.
+
+## No magic numbers
+Define constants at module scope. Use enums for discrete choices. Use dataclasses for grouped config.
+
+Bad
+x = y * 0.87
+
+Good
+DISCOUNT_RATE = 0.87
+x = y * DISCOUNT_RATE
+
+## Logging
+Use `logging`. Do not use `print`. Create one module logger.
+
+Pattern
+import logging
+logger = logging.getLogger(__name__)
+
+Use `logger.debug` for diagnostics, `logger.info` for normal progress, `logger.warning` for recoverable issues, `logger.error` for failures with context, `logger.exception` inside `except` blocks.
+
+## No emojis
+Do not include emojis in code, comments, docs, commit messages, or user-facing strings.
+
+## Pythonic and idiomatic
+Prefer standard library. Prefer comprehensions, `pathlib`, context managers, and `collections` tools.
+Write type hints for public functions and complex data structures.
+Write docstrings for public functions. Use Google style.
+
+## Avoid if then setups
+Avoid long if elif chains and deeply nested conditionals.
+Prefer early returns. Prefer dict dispatch, pattern matching, or strategy objects.
+
+Bad
+if mode == "a":
+    ...
+elif mode == "b":
+    ...
+elif mode == "c":
+    ...
+
+Good
+HANDLERS = {"a": handle_a, "b": handle_b, "c": handle_c}
+HANDLERS[mode](...)
+
+## Vectorization and parallelization
+Prefer vectorized operations with NumPy and pandas.
+Avoid Python loops over rows.
+For parallel work, prefer process pools for CPU-bound work and async or thread pools for IO-bound work.
+Do not parallelize small workloads. Add a threshold constant.

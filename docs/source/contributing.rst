@@ -21,7 +21,7 @@ Clone and Install
 
 .. code-block:: bash
 
-   git clone https://github.com/yourusername/geosuite.git
+   git clone https://github.com/kylejones200/geosuite.git
    cd geosuite
    pip install -e ".[dev,all]"
 
@@ -378,6 +378,6 @@ By contributing, you agree that your contributions will be licensed under the sa
 Questions?
 ----------
 
-- GitHub Discussions: https://github.com/yourusername/geosuite/discussions
-- GitHub Issues: https://github.com/yourusername/geosuite/issues
+- GitHub Discussions: https://github.com/kylejones200/geosuite/discussions
+- GitHub Issues: https://github.com/kylejones200/geosuite/issues
 

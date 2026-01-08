@@ -6,6 +6,15 @@ from .confusion_matrix_utils import (
     compute_metrics_from_cm,
     plot_confusion_matrix
 )
+from .regression import PermeabilityPredictor, PorosityPredictor
+from .cross_validation import WellBasedKFold, SpatialCrossValidator
+from .interpretability import (
+    get_feature_importance,
+    plot_feature_importance,
+    calculate_shap_values,
+    plot_shap_summary,
+    partial_dependence_plot,
+)
 
 __all__ = [
     "train_and_predict",
@@ -14,6 +23,15 @@ __all__ = [
     "confusion_matrix_to_dataframe",
     "compute_metrics_from_cm",
     "plot_confusion_matrix",
+    "PermeabilityPredictor",
+    "PorosityPredictor",
+    "WellBasedKFold",
+    "SpatialCrossValidator",
+    "get_feature_importance",
+    "plot_feature_importance",
+    "calculate_shap_values",
+    "plot_shap_summary",
+    "partial_dependence_plot",
 ]
 
 # Make MLflow-enhanced classifiers optional
