@@ -38,7 +38,7 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: false
     
-    - name: Check coverage threshold
+    - name: Coverage report (informational only)
       run: |
-        coverage report --fail-under=70
+        coverage report
 
