@@ -147,16 +147,17 @@ def _propagate_error_monte_carlo(
             arg = np.asarray(arg)
             
             # Sample each element independently
-            if arg.ndim == 0:
+            if arg.ndim == 0 or arg.size == 1:
                 # Scalar array
-                samples.append(np.random.normal(arg, error, n_samples))
+                samples.append(np.random.normal(float(arg), error, n_samples))
             else:
                 # Array - sample independently for each element
+                arg_flat = arg.flatten()
                 samples_array = np.array([
-                    np.random.normal(arg, error, n_samples)
-                ]).T if arg.size == 1 else np.array([
-                    np.random.normal(val, error, n_samples) for val in arg
+                    np.random.normal(val, error, n_samples) for val in arg_flat
                 ]).T
+                if arg.ndim > 1:
+                    samples_array = samples_array.reshape((n_samples,) + arg.shape)
                 samples.append(samples_array)
     
     # Evaluate function on samples
@@ -184,6 +185,10 @@ def _propagate_error_monte_carlo(
         uncertainty = np.std(result_samples, axis=0)
     else:
         uncertainty = np.std(result_samples, axis=0)
+    
+    # Ensure uncertainty matches result shape
+    if isinstance(result, np.ndarray) and result.ndim > 0:
+        uncertainty = np.reshape(uncertainty, result.shape)
     
     return result, uncertainty
 
@@ -292,4 +297,209 @@ def monte_carlo_uncertainty(
         return mean, std, result_samples
     else:
         return mean, std
+
+
+def uncertainty_porosity_from_density(
+    rhob: Union[np.ndarray, pd.Series],
+    rhob_error: Union[float, np.ndarray, pd.Series],
+    rho_matrix: float = 2.65,
+    rho_fluid: float = 1.0,
+    rho_matrix_error: float = 0.0,
+    rho_fluid_error: float = 0.0,
+    method: str = 'first_order',
+    n_samples: int = 10000
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Calculate porosity from density with uncertainty propagation.
+    
+    Args:
+        rhob: Bulk density (g/cc)
+        rhob_error: Uncertainty in bulk density (g/cc)
+        rho_matrix: Matrix density (g/cc, default 2.65)
+        rho_fluid: Fluid density (g/cc, default 1.0)
+        rho_matrix_error: Uncertainty in matrix density (g/cc)
+        rho_fluid_error: Uncertainty in fluid density (g/cc)
+        method: Error propagation method ('first_order' or 'monte_carlo')
+        
+    Returns:
+        Tuple of (porosity, porosity_uncertainty)
+    """
+    from geosuite.petro.calculations import calculate_porosity_from_density
+    
+    def porosity_func(rhob_val, rho_mat=rho_matrix, rho_fl=rho_fluid):
+        return calculate_porosity_from_density(rhob_val, rho_mat, rho_fl)
+    
+    rhob = np.asarray(rhob)
+    rhob_error = np.asarray(rhob_error) if not isinstance(rhob_error, (int, float)) else rhob_error
+    
+    if isinstance(rhob_error, (int, float)):
+        errors = (rhob_error, rho_matrix_error, rho_fluid_error)
+    else:
+        errors = (rhob_error, np.full_like(rhob, rho_matrix_error), np.full_like(rhob, rho_fluid_error))
+    
+    return propagate_error(porosity_func, rhob, rho_matrix, rho_fluid, errors=errors, method=method, n_samples=n_samples)
+
+
+def uncertainty_water_saturation(
+    phi: Union[np.ndarray, pd.Series],
+    rt: Union[np.ndarray, pd.Series],
+    phi_error: Union[float, np.ndarray, pd.Series],
+    rt_error: Union[float, np.ndarray, pd.Series],
+    rw: float = 0.05,
+    rw_error: float = 0.0,
+    m: float = 2.0,
+    m_error: float = 0.0,
+    n: float = 2.0,
+    n_error: float = 0.0,
+    a: float = 1.0,
+    a_error: float = 0.0,
+    method: str = 'monte_carlo',
+    n_samples: int = 10000
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Calculate water saturation with uncertainty propagation.
+    
+    Args:
+        phi: Porosity (fraction)
+        rt: True resistivity (ohm-m)
+        phi_error: Uncertainty in porosity
+        rt_error: Uncertainty in resistivity (ohm-m)
+        rw: Formation water resistivity (ohm-m)
+        rw_error: Uncertainty in rw
+        m: Cementation exponent
+        m_error: Uncertainty in m
+        n: Saturation exponent
+        n_error: Uncertainty in n
+        a: Tortuosity factor
+        a_error: Uncertainty in a
+        method: Error propagation method ('first_order' or 'monte_carlo')
+        
+    Returns:
+        Tuple of (water_saturation, sw_uncertainty)
+    """
+    from geosuite.petro.calculations import calculate_water_saturation
+    
+    def sw_func(phi_val, rt_val, rw_val=rw, m_val=m, n_val=n, a_val=a):
+        return calculate_water_saturation(phi_val, rt_val, rw_val, m_val, n_val, a_val)
+    
+    phi = np.asarray(phi)
+    rt = np.asarray(rt)
+    
+    phi_error = np.asarray(phi_error) if not isinstance(phi_error, (int, float)) else phi_error
+    rt_error = np.asarray(rt_error) if not isinstance(rt_error, (int, float)) else rt_error
+    
+    if isinstance(phi_error, (int, float)):
+        errors = (phi_error, rt_error, rw_error, m_error, n_error, a_error)
+    else:
+        errors = (
+            phi_error,
+            rt_error,
+            np.full_like(phi, rw_error),
+            np.full_like(phi, m_error),
+            np.full_like(phi, n_error),
+            np.full_like(phi, a_error)
+        )
+    
+    return propagate_error(sw_func, phi, rt, rw, m, n, a, errors=errors, method=method, n_samples=n_samples)
+
+
+def uncertainty_permeability(
+    phi: Union[np.ndarray, pd.Series],
+    sw: Union[np.ndarray, pd.Series],
+    phi_error: Union[float, np.ndarray, pd.Series],
+    sw_error: Union[float, np.ndarray, pd.Series],
+    method: str = 'timur',
+    method_params: Optional[Dict[str, float]] = None,
+    method_param_errors: Optional[Dict[str, float]] = None,
+    uncertainty_method: str = 'monte_carlo',
+    n_samples: int = 10000
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Calculate permeability with uncertainty propagation.
+    
+    Args:
+        phi: Porosity (fraction)
+        sw: Water saturation (fraction)
+        phi_error: Uncertainty in porosity
+        sw_error: Uncertainty in water saturation
+        method: Permeability model ('timur', 'wyllie_rose', 'coates_dumanoir')
+        method_params: Model parameters (coefficient, exponents)
+        method_param_errors: Uncertainties in model parameters
+        uncertainty_method: Error propagation method ('first_order' or 'monte_carlo')
+        
+    Returns:
+        Tuple of (permeability, permeability_uncertainty)
+    """
+    from geosuite.petro.permeability import (
+        calculate_permeability_timur,
+        calculate_permeability_wyllie_rose,
+        calculate_permeability_coates_dumanoir,
+    )
+    
+    method_params = method_params or {}
+    method_param_errors = method_param_errors or {}
+    
+    model_configs = {
+        'timur': (calculate_permeability_timur, {
+            'coefficient': 0.136,
+            'porosity_exponent': 4.4,
+            'saturation_exponent': 2.0,
+        }),
+        'wyllie_rose': (calculate_permeability_wyllie_rose, {
+            'coefficient': 0.625,
+            'porosity_exponent': 6.0,
+            'saturation_exponent': 2.0,
+        }),
+        'coates_dumanoir': (calculate_permeability_coates_dumanoir, {
+            'coefficient': 70.0,
+            'porosity_exponent': 2.0,
+            'saturation_exponent': 2.0,
+        }),
+    }
+    
+    if method not in model_configs:
+        raise ValueError(f"Unknown method: {method}. Choose: {', '.join(model_configs.keys())}")
+    
+    perm_func, default_params = model_configs[method]
+    params = {**default_params, **method_params}
+    
+    def perm_calc(phi_val, sw_val, **kwargs):
+        return perm_func(phi_val, sw_val, **kwargs)
+    
+    phi = np.asarray(phi)
+    sw = np.asarray(sw)
+    
+    phi_error = np.asarray(phi_error) if not isinstance(phi_error, (int, float)) else phi_error
+    sw_error = np.asarray(sw_error) if not isinstance(sw_error, (int, float)) else sw_error
+    
+    errors_list = [phi_error, sw_error]
+    args_list = [phi, sw]
+    
+    for param_name in ['coefficient', 'porosity_exponent', 'saturation_exponent']:
+        if param_name in params:
+            args_list.append(params[param_name])
+            param_error = method_param_errors.get(param_name, 0.0)
+            if isinstance(phi_error, (int, float)):
+                errors_list.append(param_error)
+            else:
+                errors_list.append(np.full_like(phi, param_error))
+    
+    def wrapped_func(*args):
+        phi_val, sw_val = args[0], args[1]
+        param_dict = {}
+        if len(args) > 2:
+            param_dict['coefficient'] = args[2] if len(args) > 2 else params['coefficient']
+            param_dict['porosity_exponent'] = args[3] if len(args) > 3 else params['porosity_exponent']
+            param_dict['saturation_exponent'] = args[4] if len(args) > 4 else params['saturation_exponent']
+        else:
+            param_dict = params.copy()
+        
+        phi_val = np.atleast_1d(np.asarray(phi_val, dtype=float))
+        sw_val = np.atleast_1d(np.asarray(sw_val, dtype=float))
+        
+        result = perm_func(phi_val, sw_val, **param_dict)
+        
+        return result[0] if result.size == 1 else result
+    
+    return propagate_error(wrapped_func, *args_list, errors=tuple(errors_list), method=uncertainty_method, n_samples=n_samples)
 

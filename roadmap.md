@@ -27,10 +27,11 @@
 
 **⬜ Remaining:**
 - ✅ Permeability estimation models (empirical relationships) - Kozeny-Carman, Timur, Wyllie-Rose, Coates-Dumanoir, Tixier
-- ⬜ Uncertainty quantification:
-  - Error propagation for derived quantities
-  - Confidence intervals for calculations
-  - Monte Carlo uncertainty analysis
+- ✅ Uncertainty quantification:
+  - ✅ Error propagation for derived quantities (first-order and Monte Carlo)
+  - ✅ Confidence intervals for calculations
+  - ✅ Monte Carlo uncertainty analysis
+  - ✅ Petrophysical-specific uncertainty functions (porosity, water saturation, permeability)
 - ⬜ Geomechanics enhancements:
   - Stress inversion tools
   - Fracture orientation models
