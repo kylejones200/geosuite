@@ -47,6 +47,8 @@ dependencies = [
     "pyarrow>=14.0.0",
     "pyyaml>=6.0",
 ]
+
+[project.optional-dependencies]
 visualization = [
     "plotly>=5.0.0",  # For interactive 3D visualization
     "folium>=0.14.0",  # For interactive maps
@@ -67,8 +69,6 @@ forecasting = [
     "pymc>=5.0.0",  # Bayesian decline analysis
     "arviz>=0.15.0",  # Bayesian diagnostics and visualization
 ]
-
-[project.optional-dependencies]
 ml = [
     "mlflow>=2.8.0",
     "mlflow[extras]>=2.8.0",
@@ -136,7 +136,7 @@ Repository = "https://github.com/kylejones200/geosuite"
 Issues = "https://github.com/kylejones200/geosuite/issues"
 
 [tool.setuptools]
-packages = ["geosuite", "geosuite.io", "geosuite.petro", "geosuite.geomech", "geosuite.ml", "geosuite.stratigraphy", "geosuite.imaging", "geosuite.geospatial", "geosuite.plotting", "geosuite.data", "geosuite.modeling", "geosuite.base", "geosuite.cli", "geosuite.config", "geosuite.analysis", "geosuite.forecasting"]
+packages = ["geosuite", "geosuite.io", "geosuite.petro", "geosuite.geomech", "geosuite.ml", "geosuite.stratigraphy", "geosuite.imaging", "geosuite.geospatial", "geosuite.plotting", "geosuite.data", "geosuite.modeling", "geosuite.cli", "geosuite.config", "geosuite.workflows", "geosuite.analysis", "geosuite.forecasting"]
 
 [project.scripts]
 geosuite-batch = "geosuite.cli.batch_process:main"
@@ -168,7 +168,6 @@ omit = [
     "*/__pycache__/*",
     "*/setup.py",
     "geosuite/cli/*",  # CLI utilities not fully tested
-    "geosuite/base.py",  # Legacy base module
     "geosuite/utils/uncertainty.py",  # Not yet implemented
     "geosuite/geomech/basic.py",  # Legacy module
     "geosuite/io/csv_loader.py",  # Optional dependency
