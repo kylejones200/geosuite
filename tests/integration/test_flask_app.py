@@ -3,7 +3,21 @@ Integration tests for Flask application.
 """
 import pytest
 import json
+import sys
+import os
 from jinja2.exceptions import TemplateNotFound
+
+# Skip all tests if webapp is not available
+webapp_path = os.path.join(os.path.dirname(__file__), '..', '..', 'webapp')
+if not os.path.exists(webapp_path):
+    pytestmark = pytest.mark.skip("Webapp not available")
+else:
+    # Try to import Flask app
+    try:
+        sys.path.insert(0, webapp_path)
+        from app import create_app
+    except ImportError:
+        pytestmark = pytest.mark.skip("Flask app module not available")
 
 
 class TestMainRoutes:

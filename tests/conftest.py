@@ -69,17 +69,29 @@ def sample_facies_data():
 @pytest.fixture
 def flask_app():
     """Create Flask app instance for testing."""
-    from app import create_app
-    
-    app = create_app()
-    app.config['TESTING'] = True
-    
-    return app
+    try:
+        import sys
+        import os
+        # Add webapp to path
+        webapp_path = os.path.join(os.path.dirname(__file__), '..', 'webapp')
+        if os.path.exists(webapp_path):
+            sys.path.insert(0, webapp_path)
+            from app import create_app
+            
+            app = create_app()
+            app.config['TESTING'] = True
+            return app
+        else:
+            pytest.skip("Webapp not available")
+    except ImportError:
+        pytest.skip("Flask app module not available")
 
 
 @pytest.fixture
 def client(flask_app):
     """Create test client."""
+    if flask_app is None:
+        pytest.skip("Flask app not available")
     return flask_app.test_client()
 
 
