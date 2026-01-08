@@ -16,6 +16,11 @@ from .changepoint import (
     tune_penalty_to_target_count,
     RUPTURES_AVAILABLE
 )
+from .advanced import (
+    ml_segment_timeseries,
+    detect_multi_log_boundaries,
+    correlate_formations,
+)
 
 __all__ = [
     'preprocess_log',
@@ -24,7 +29,10 @@ __all__ = [
     'compare_methods',
     'find_consensus',
     'tune_penalty_to_target_count',
-    'RUPTURES_AVAILABLE'
+    'RUPTURES_AVAILABLE',
+    'ml_segment_timeseries',
+    'detect_multi_log_boundaries',
+    'correlate_formations',
 ]
 
 

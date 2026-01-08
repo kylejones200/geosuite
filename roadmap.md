@@ -36,10 +36,10 @@
   - ✅ Stress inversion tools (breakout, DIF, combined)
   - ✅ Fracture orientation models (Coulomb, Griffith, tensile)
   - ✅ Advanced failure criteria (Mohr-Coulomb, Drucker-Prager, Hoek-Brown, Griffith)
-- ⬜ Advanced stratigraphy:
-  - ML-based time series segmentation
-  - Multi-log boundary detection
-  - Formation correlation tools
+- ✅ Advanced stratigraphy:
+  - ✅ ML-based time series segmentation (KMeans, PCA+KMeans, Hierarchical)
+  - ✅ Multi-log boundary detection (consensus, weighted, majority voting)
+  - ✅ Formation correlation tools (DTW, cross-correlation, feature matching)
 
 ---
 
