@@ -9,17 +9,14 @@ on:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.12'
     
     - name: Install dependencies
       run: |
@@ -28,17 +25,11 @@ jobs:
     
     - name: Run tests with coverage
       run: |
-        pytest --cov=geosuite --cov-report=xml --cov-report=html --cov-report=term
+        pytest --cov=geosuite --cov-report=xml --cov-report=term
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
         fail_ci_if_error: false
-    
-    - name: Coverage report (informational only)
-      run: |
-        coverage report
 
