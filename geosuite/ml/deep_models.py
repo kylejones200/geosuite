@@ -165,7 +165,7 @@ class DeepFaciesClassifier(BaseEstimator):
         self._estimator_type = 'classifier'
         self.history_ = None
     
-    def _build_torch_model(self, n_features: int, n_classes: int) -> nn.Module:
+    def _build_torch_model(self, n_features: int, n_classes: int) -> "nn.Module":
         """Build PyTorch neural network."""
         layers = []
         input_size = n_features
@@ -532,7 +532,7 @@ class DeepPropertyPredictor(BaseEstimator):
         self._estimator_type = 'regressor'
         self.history_ = None
     
-    def _build_torch_model(self, n_features: int) -> nn.Module:
+    def _build_torch_model(self, n_features: int) -> "nn.Module":
         """Build PyTorch regression model."""
         layers = []
         input_size = n_features
