@@ -28,12 +28,19 @@ NUMBA_DISABLE = os.environ.get('NUMBA_DISABLE_JIT', '0') == '1'
 if NUMBA_DISABLE:
     warnings.warn("Numba JIT compilation disabled via NUMBA_DISABLE_JIT=1")
     NUMBA_AVAILABLE = False
+    _njit = None
+    _prange = None
 else:
     try:
         from numba import njit as _njit, prange as _prange
+        # Verify imports are actually callable
+        if _njit is None or _prange is None:
+            raise ImportError("Numba imports returned None")
         NUMBA_AVAILABLE = True
-    except ImportError:
+    except (ImportError, AttributeError, TypeError) as e:
         NUMBA_AVAILABLE = False
+        _njit = None
+        _prange = None
         warnings.warn(
             "Numba not available. Install for 10-100x speedups on numerical code: "
             "pip install numba>=0.58.0",
@@ -61,11 +68,12 @@ def njit(*args, **kwargs):
                 result += (y[i] + y[i-1]) * (x[i] - x[i-1]) / 2
             return result
     """
-    if not NUMBA_AVAILABLE:
-        # No-op decorator: return function unchanged
-        def decorator(func):
-            return func
-        
+    # No-op decorator: return function unchanged
+    def decorator(func):
+        return func
+    
+    # Check if we can actually use numba
+    if not NUMBA_AVAILABLE or _njit is None:
         # Handle both @njit and @njit() calling styles
         if len(args) == 1 and callable(args[0]) and not kwargs:
             # Called as @njit (no parentheses)
@@ -74,11 +82,11 @@ def njit(*args, **kwargs):
             # Called as @njit(...) (with parentheses)
             return decorator
     else:
-        # Numba is available, use real decorator
+        # Numba is available and working, use real decorator
         return _njit(*args, **kwargs)
 
 
-if NUMBA_AVAILABLE:
+if NUMBA_AVAILABLE and _prange is not None:
     # Use real prange for parallel loops
     prange = _prange
 else:

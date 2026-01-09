@@ -115,9 +115,13 @@ def get_parallel_info() -> dict:
     if NUMBA_AVAILABLE:
         try:
             from numba import config
-            info['num_threads'] = config.NUMBA_NUM_THREADS
-            info['threading_layer'] = config.THREADING_LAYER
-        except:
+            if config is not None:
+                info['num_threads'] = getattr(config, 'NUMBA_NUM_THREADS', 'unknown')
+                info['threading_layer'] = getattr(config, 'THREADING_LAYER', 'unknown')
+            else:
+                info['num_threads'] = 'unknown'
+                info['threading_layer'] = 'unknown'
+        except (ImportError, AttributeError, TypeError):
             info['num_threads'] = 'unknown'
             info['threading_layer'] = 'unknown'
     else:
