@@ -280,3 +280,4 @@ def forecast_uncertainty_bands(
         'rate_p50': ensemble_result['quantiles']['p50']
     })
 
+

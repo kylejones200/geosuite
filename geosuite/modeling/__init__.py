@@ -73,3 +73,19 @@ except ImportError as e:
     logger.warning(f"Some modeling components not available: {e}")
     __all__ = ["PYGEO_AVAILABLE"]
 
+# Import GPR modeling (independent of pygeomodeling)
+try:
+    from .gpr_modeling import (
+        GPRReservoirModel,
+        export_to_grdecl,
+        predict_on_grid,
+    )
+    
+    if "GPRReservoirModel" not in __all__:
+        __all__.extend([
+            "GPRReservoirModel",
+            "export_to_grdecl",
+            "predict_on_grid",
+        ])
+except ImportError as e:
+    logger.warning(f"GPR modeling components not available: {e}")

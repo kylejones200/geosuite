@@ -12,9 +12,11 @@ GeoSuite provides tools for petroleum engineering and geoscience applications:
     - ``stratigraphy``: Automated stratigraphic interpretation (change-point detection)
     - ``imaging``: Core image processing and analysis
     - ``geospatial``: Geospatial operations with Apache Sedona
-    - ``plotting``: Visualization utilities (strip charts, crossplots)
+    - ``plotting``: Visualization utilities (strip charts, crossplots, ternary plots)
     - ``data``: Demo datasets and data loaders
     - ``modeling``: Spatial reservoir modeling with pygeomodeling integration (optional)
+    - ``mining``: Ore geomodeling and block model generation (IDW + ML)
+    - ``forecasting``: Production forecasting and decline curve analysis
     - ``base``: Base classes for consistent API patterns
     - ``utils``: Utility functions (Numba helpers, uncertainty quantification)
 
@@ -122,6 +124,13 @@ except ImportError:
     _has_modeling = False
     modeling = None
 
+try:
+    from geosuite import mining
+    _has_mining = True
+except ImportError:
+    _has_mining = False
+    mining = None
+
 # Export commonly used functions at top level for convenience
 from geosuite.data import (
     load_demo_well_logs,
@@ -190,7 +199,9 @@ __all__ = [
     "plotting",
     "geospatial",
     "modeling",
+    "mining",
     "analysis",
+    "forecasting",
     "workflows",
     "config",
     

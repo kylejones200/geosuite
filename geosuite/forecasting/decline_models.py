@@ -5,7 +5,7 @@ Implements standard decline curve models (exponential, hyperbolic, harmonic)
 with physics-informed constraints and parameter estimation.
 """
 import logging
-from typing import Optional, Union, Dict, Any, Tuple
+from typing import Optional, Union, Dict, Any, Tuple, List
 from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
@@ -13,6 +13,21 @@ from scipy.optimize import curve_fit
 from scipy.stats import linregress
 
 logger = logging.getLogger(__name__)
+
+# Optional dependencies for parallel processing
+try:
+    import multiprocessing as mp
+    MULTIPROCESSING_AVAILABLE = True
+except ImportError:
+    MULTIPROCESSING_AVAILABLE = False
+    logger.warning("multiprocessing not available, parallel processing disabled")
+
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
+    logger.info("tqdm not available, progress bars disabled")
 
 
 class DeclineModel(ABC):
@@ -395,4 +410,155 @@ def forecast_production(
         Forecast results
     """
     return model.forecast(n_periods, period_length)
+
+
+def process_wells_parallel(
+    well_data_list: List[Tuple[Any, pd.DataFrame]],
+    model_type: str = 'hyperbolic',
+    date_col: str = 'date',
+    production_col: str = 'production',
+    n_jobs: Optional[int] = None,
+    batch_size: int = 1000,
+    min_data_points: int = 12
+) -> List[Dict[str, Any]]:
+    """
+    Process multiple wells in parallel using decline curve analysis.
+    
+    This function uses multiprocessing to analyze large datasets efficiently.
+    Useful for processing thousands of wells.
+    
+    Parameters
+    ----------
+    well_data_list : List[Tuple[Any, pd.DataFrame]]
+        List of (well_id, well_dataframe) tuples
+    model_type : str, default 'hyperbolic'
+        Decline model type ('exponential', 'hyperbolic', 'harmonic')
+    date_col : str, default 'date'
+        Name of date column in well dataframes
+    production_col : str, default 'production'
+        Name of production column in well dataframes
+    n_jobs : int, optional
+        Number of parallel workers (default: min(cpu_count(), 8))
+    batch_size : int, default 1000
+        Batch size for processing (helps manage memory)
+    min_data_points : int, default 12
+        Minimum data points required for analysis
+        
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of analysis results for each well
+        
+    Example:
+        >>> well_data = [
+        ...     ('well_1', df1),
+        ...     ('well_2', df2),
+        ...     ('well_3', df3)
+        ... ]
+        >>> results = process_wells_parallel(
+        ...     well_data,
+        ...     model_type='hyperbolic',
+        ...     date_col='date',
+        ...     production_col='oil'
+        ... )
+    """
+    if not MULTIPROCESSING_AVAILABLE:
+        raise ImportError("multiprocessing is required for parallel processing")
+    
+    from functools import partial
+    
+    def analyze_well(args):
+        """Analyze a single well (used by multiprocessing)"""
+        well_id, well_df = args
+        
+        try:
+            # Sort by date
+            if date_col in well_df.columns:
+                well_df = well_df.sort_values(date_col)
+            
+            # Extract time series
+            if date_col in well_df.columns and production_col in well_df.columns:
+                dates = pd.to_datetime(well_df[date_col], errors='coerce')
+                production = well_df[production_col].fillna(0)
+                
+                # Remove invalid values
+                valid_mask = dates.notna() & (production > 0)
+                if valid_mask.sum() < min_data_points:
+                    return None
+                
+                dates_valid = dates[valid_mask]
+                production_valid = production[valid_mask]
+                
+                # Resample to monthly if needed
+                series = pd.Series(production_valid.values, index=dates_valid)
+                series = series.resample('MS').sum()
+                series = series[series > 0]
+                
+                if len(series) < min_data_points:
+                    return None
+                
+                # Fit decline model
+                model = fit_decline_model(
+                    series.index,
+                    series.values,
+                    model_type=model_type
+                )
+                
+                # Extract parameters
+                params = model.params.copy()
+                
+                # Generate forecast
+                forecast_df = model.forecast(n_periods=12, period_length=1.0)
+                
+                return {
+                    'well_id': well_id,
+                    'model_type': model_type,
+                    'n_data_points': len(series),
+                    'date_start': series.index.min(),
+                    'date_end': series.index.max(),
+                    'historical_mean': float(series.mean()),
+                    'historical_total': float(series.sum()),
+                    'forecast_mean': float(forecast_df['rate'].mean()),
+                    'forecast_total': float(forecast_df['rate'].sum()),
+                    'parameters': params,
+                    'status': 'success'
+                }
+                
+            else:
+                return None
+                
+        except Exception as e:
+            logger.warning(f"Error analyzing well {well_id}: {e}")
+            return {
+                'well_id': well_id,
+                'status': f'error: {str(e)[:100]}'
+            }
+    
+    # Set up parallel processing
+    n_jobs = n_jobs or min(mp.cpu_count(), 8)
+    
+    logger.info(f"Processing {len(well_data_list)} wells with {n_jobs} workers")
+    logger.info(f"Batch size: {batch_size}, Min data points: {min_data_points}")
+    
+    # Process in batches
+    results = []
+    batches = range(0, len(well_data_list), batch_size)
+    
+    if TQDM_AVAILABLE:
+        batches = tqdm(batches, desc="Processing batches")
+    
+    for i in batches:
+        batch = well_data_list[i:i+batch_size]
+        
+        with mp.Pool(n_jobs) as pool:
+            batch_results = pool.map(analyze_well, batch)
+        
+        # Filter out None results
+        batch_results = [r for r in batch_results if r is not None]
+        results.extend(batch_results)
+    
+    logger.info(f"Successfully analyzed {len(results)} wells")
+    
+    return results
+
 

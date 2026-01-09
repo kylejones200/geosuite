@@ -35,6 +35,19 @@ from .permeability import (
     calculate_permeability_tixier,
     calculate_permeability_porosity_only,
 )
+from .avo import (
+    calculate_velocities_from_slowness,
+    preprocess_avo_inputs,
+    calculate_avo_attributes,
+    calculate_avo_from_slowness,
+)
+from .seismic_processing import (
+    compute_hilbert_attributes,
+    estimate_residual_phase,
+    apply_phase_shift,
+    correct_trace_phase,
+    load_trace_from_segy,
+)
 
 __all__ = [
     # Archie module (existing)
@@ -70,4 +83,17 @@ __all__ = [
     "calculate_permeability_coates_dumanoir",
     "calculate_permeability_tixier",
     "calculate_permeability_porosity_only",
+    
+    # AVO attributes
+    "calculate_velocities_from_slowness",
+    "preprocess_avo_inputs",
+    "calculate_avo_attributes",
+    "calculate_avo_from_slowness",
+    
+    # Seismic processing
+    "compute_hilbert_attributes",
+    "estimate_residual_phase",
+    "apply_phase_shift",
+    "correct_trace_phase",
+    "load_trace_from_segy",
 ]

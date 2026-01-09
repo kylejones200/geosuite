@@ -19,6 +19,23 @@ __all__ = [
     'add_facies_track',
 ]
 
+# Import ternary plotting functions
+try:
+    from .ternary import (
+        ternary_plot,
+        sand_silt_clay_plot,
+        qfl_plot,
+        mineral_composition_plot
+    )
+    __all__.extend([
+        'ternary_plot',
+        'sand_silt_clay_plot',
+        'qfl_plot',
+        'mineral_composition_plot'
+    ])
+except ImportError:
+    pass
+
 # Make interactive 3D visualization optional
 try:
     from .interactive_3d import (
@@ -43,6 +60,21 @@ try:
     __all__.extend([
         'create_field_map',
         'create_well_trajectory_map',
+    ])
+except ImportError:
+    pass
+
+# Make interactive Folium maps optional
+try:
+    from .interactive import (
+        create_interactive_kriging_map,
+        create_interactive_well_map,
+        create_combined_map
+    )
+    __all__.extend([
+        'create_interactive_kriging_map',
+        'create_interactive_well_map',
+        'create_combined_map'
     ])
 except ImportError:
     pass

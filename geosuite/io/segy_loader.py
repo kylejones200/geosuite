@@ -246,3 +246,96 @@ def read_inline(path: str, iline: Optional[int] = None) -> Optional[np.ndarray]:
             return np.asarray(data, dtype=float)
     except Exception:
         return None
+
+
+def read_trace_with_phase_correction(
+    path: str,
+    inline: int,
+    crossline: int,
+    apply_correction: bool = True,
+    threshold_pct: float = 75.0
+) -> tuple[np.ndarray, float, dict]:
+    """
+    Read a trace from SEGY file and optionally apply phase correction.
+    
+    This is a convenience function that combines trace loading with phase
+    correction from the seismic_processing module.
+    
+    Parameters
+    ----------
+    path : str
+        Path to SEGY file
+    inline : int
+        Inline number
+    crossline : int
+        Crossline number
+    apply_correction : bool, default True
+        If True, apply phase correction using Hilbert transform
+    threshold_pct : float, default 75.0
+        Percentile threshold for peak detection (0-100)
+        
+    Returns
+    -------
+    tuple
+        (trace, dt, info_dict):
+        - trace: Seismic trace array (corrected if apply_correction=True)
+        - dt: Sample interval (seconds)
+        - info_dict: Dictionary with correction info (envelope, phase, etc.)
+        
+    Example
+    -------
+    >>> trace, dt, info = read_trace_with_phase_correction(
+    ...     'data.sgy', iline=1190, xline=1155, apply_correction=True
+    ... )
+    >>> print(f"Applied phase shift: {info.get('phase_shift', 0):.2f} radians")
+    """
+    if not SEGYIO_AVAILABLE:
+        raise ImportError("segyio is required for SEG-Y support")
+    
+    # Load trace using the seismic_processing function
+    try:
+        from ..petro.seismic_processing import correct_trace_phase
+        
+        # Load trace using basic function first
+        trace, dt = _read_trace_basic(path, inline, crossline)
+        
+        if apply_correction:
+            corrected, phase_shift, info = correct_trace_phase(
+                trace, dt, threshold_pct=threshold_pct
+            )
+            info['phase_shift'] = phase_shift
+            return corrected, dt, info
+        else:
+            return trace, dt, {}
+            
+    except ImportError:
+        logger.warning(
+            "Phase correction requires scipy. Using basic trace loading. "
+            "Install with: pip install scipy"
+        )
+        # Fallback to basic trace loading
+        trace, dt = _read_trace_basic(path, inline, crossline)
+        return trace, dt, {}
+
+
+def _read_trace_basic(path: str, inline: int, crossline: int) -> tuple[np.ndarray, float]:
+    """Internal helper to read trace without phase correction."""
+    if not SEGYIO_AVAILABLE:
+        raise ImportError("segyio is required for SEG-Y support")
+    
+    with segyio.open(path, mode='r', strict=False, ignore_geometry=True) as f:
+        f.mmap()
+        dt_us = f.bin[segyio.BinField.Interval]
+        dt = dt_us / 1e6  # Convert to seconds
+        
+        ilines = f.attributes(segyio.TraceField.INLINE_3D)[:]
+        xlines = f.attributes(segyio.TraceField.CROSSLINE_3D)[:]
+        
+        for i, (il, xl) in enumerate(zip(ilines, xlines)):
+            if il == inline and xl == crossline:
+                trace = f.trace[i]
+                return trace.astype(np.float32), dt
+        
+        raise ValueError(
+            f"Trace not found for inline {inline}, crossline {crossline}"
+        )

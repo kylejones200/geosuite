@@ -297,3 +297,4 @@ def load_resqml_properties(
     parser = ResqmlParser()
     return parser.load_properties(epc_path, property_kind=property_kind)
 
+
