@@ -61,24 +61,32 @@ class TestConfigManager:
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
             f.write("petro:\n  archie:\n    a: 1.0\n")
             f.flush()
-            
+            temp_path = f.name
+        
+        # File is closed now, safe to delete on Windows
+        try:
             config = ConfigManager()
-            config.load_from_file(f.name)
+            config.load_from_file(temp_path)
             assert config.get('petro.archie.a') == 1.0
-            
-            os.unlink(f.name)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
     
     def test_load_json(self):
         """Test loading JSON configuration."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             f.write('{"petro": {"archie": {"a": 1.0}}}')
             f.flush()
-            
+            temp_path = f.name
+        
+        # File is closed now, safe to delete on Windows
+        try:
             config = ConfigManager()
-            config.load_from_file(f.name)
+            config.load_from_file(temp_path)
             assert config.get('petro.archie.a') == 1.0
-            
-            os.unlink(f.name)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
     
     def test_load_file_not_found(self):
         """Test error when file doesn't exist."""
@@ -91,12 +99,16 @@ class TestConfigManager:
         with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
             f.write("test")
             f.flush()
-            
+            temp_path = f.name
+        
+        # File is closed now, safe to delete on Windows
+        try:
             config = ConfigManager()
             with pytest.raises(ValueError, match="Unsupported file format"):
-                config.load_from_file(f.name)
-            
-            os.unlink(f.name)
+                config.load_from_file(temp_path)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
     
     def test_merge_config(self):
         """Test merging configurations."""
@@ -146,12 +158,16 @@ class TestGlobalConfig:
         with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
             f.write("key: value\n")
             f.flush()
-            
-            config = load_config(f.name)
+            temp_path = f.name
+        
+        # File is closed now, safe to delete on Windows
+        try:
+            config = load_config(temp_path)
             assert isinstance(config, ConfigManager)
             assert config.get('key') == 'value'
-            
-            os.unlink(f.name)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
     
     def test_get_config(self):
         """Test getting from global configuration."""
