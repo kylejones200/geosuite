@@ -47,17 +47,33 @@ def calculate_water_saturation(
     phi = np.asarray(phi, dtype=float)
     rt = np.asarray(rt, dtype=float)
     
-    if len(phi) == 0 or len(rt) == 0:
+    # Handle scalar inputs (0-d arrays) by converting to 1-d
+    if phi.ndim == 0:
+        phi = np.array([phi.item()])
+    if rt.ndim == 0:
+        rt = np.array([rt.item()])
+    
+    # Store original shape for reshaping output
+    original_shape = phi.shape
+    
+    # Flatten to 1-d for length checks and calculations
+    phi_flat = phi.flatten()
+    rt_flat = rt.flatten()
+    
+    if len(phi_flat) == 0 or len(rt_flat) == 0:
         raise ValueError("Porosity and resistivity arrays must not be empty")
     
-    if len(phi) != len(rt):
+    if len(phi_flat) != len(rt_flat):
         raise ValueError("Porosity and resistivity arrays must have same length")
     
-    phi = np.where(phi <= 0, np.nan, phi)
-    rt = np.where(rt <= 0, np.nan, rt)
+    phi_flat = np.where(phi_flat <= 0, np.nan, phi_flat)
+    rt_flat = np.where(rt_flat <= 0, np.nan, rt_flat)
     
-    sw = ((a * rw) / (phi ** m * rt)) ** (1 / n)
-    sw = np.clip(sw, 0, 1)
+    sw_flat = ((a * rw) / (phi_flat ** m * rt_flat)) ** (1 / n)
+    sw_flat = np.clip(sw_flat, 0, 1)
+    
+    # Reshape to match original input shape
+    sw = sw_flat.reshape(original_shape)
     
     return sw
 
