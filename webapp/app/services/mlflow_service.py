@@ -50,7 +50,7 @@ class MLflowService:
         logger.info(f"MLflow service initialized with tracking URI: {self.tracking_uri}")
         logger.info(f"Using experiment: {self.experiment_name} (ID: {self.experiment_id})")
     
-    def start_run(self, run_name: str = None, tags: Dict[str, str] = None) -> mlflow.ActiveRun:
+    def start_run(self, run_name: str = None, tags: Dict[str, str] = None) -> "mlflow.ActiveRun":
         """
         Start a new MLflow run.
         
