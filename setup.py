@@ -75,7 +75,7 @@ EXTRAS_REQUIRE['all'] = list(set([
 
 setup(
     name="geosuite",
-    version="0.1.3",
+    version="0.1.4",
     author="K. Jones",
     author_email="kyletjones@gmail.com",
     description="A Python library for geoscience workflows: geomechanics, petrophysics, machine learning, and data I/O",
